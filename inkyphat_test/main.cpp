@@ -1,5 +1,4 @@
 // System includes
-
 #include <iostream>
 #include <stdint.h>
 #include <string>
@@ -11,7 +10,7 @@
 
 // Local headers
 #include "inkyphat.h"
-#include "constants.h"
+#include "inkyphatConstants.h"
 
 using namespace std;
 
