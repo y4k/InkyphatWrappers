@@ -10,7 +10,6 @@
 
 // Local headers
 #include "inkyphat.h"
-#include "inkyphatConstants.h"
 
 using namespace std;
 
@@ -32,7 +31,7 @@ int main(int argc, char* argv[])
 
     cout << "Running InkyPhat CPP" << endl;
 
-    // Initialises wiringPi and uses the wiringPi pin numbering scheme
+    // Initialises wiringPi and uses the BCM pin numbering scheme
     if(wiringPiSetupGpio() == -1)
     {
         cout << "Failed to initialise WiringPi" << endl;
@@ -57,7 +56,7 @@ int main(int argc, char* argv[])
         cout << "WiringPi SPI library initialised" << endl;
     }
 
-    InkyPhat inky;
+    InkyPhat& inky = InkyPhat::Instance();
 
     int width = WIDTH;
     int height = HEIGHT;

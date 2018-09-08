@@ -3,7 +3,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "clinkt.h"
+#include <string>
 
 std::string cleanHexCode(std::string hexValue);
 

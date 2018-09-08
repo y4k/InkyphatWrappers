@@ -1,4 +1,4 @@
-#include<iostream>
+#include <iostream>
 #include <stdint.h>
 #include <string>
 #include <linux/types.h>
@@ -220,6 +220,9 @@ InkyPhat::~InkyPhat()
 
 int InkyPhat::update()
 {
+    // Lock to avoid to threads attempting to update at once
+    lock_guard<mutex> lock(_lock);
+
     _display_init();
 
     vector<uint8_t> red_buffer;
@@ -288,12 +291,32 @@ int InkyPhat::update()
 // e.g buffer[y][x] or buffer[row][column]
 int InkyPhat::set_pixel(int row, int column, uint8_t value)
 {
+    // Lock to avoid to threads attempting to set_pixels
+    lock_guard<mutex> lock(_lock);
+
     if(row < 0 || row >= height || column < 0 || column >= width || value < 0 || value > 2)
     {
         return -1;
     }
     buffer[row][column] = value;
     return 0;
+}
+
+string InkyPhat::print_current_buffer()
+{
+    // Lock to avoid to threads attempting to update at once
+    lock_guard<mutex> lock(_lock);
+    
+    string output;
+    output += "Current buffer values";
+    output += "\n";
+    for (vector<vector<uint8_t>>::iterator row_it = buffer.begin(); row_it != buffer.end(); row_it++)
+    {
+        output += print_buff(*row_it);
+        output += "\n";
+    }
+    output += "\n";
+    return output;
 }
 
 string print_buff(vector< uint8_t > buffer)
@@ -317,20 +340,6 @@ string print_buff(vector< uint8_t > buffer)
     }
     output += "]";
 
-    return output;
-}
-
-string InkyPhat::print_current_buffer()
-{
-    string output;
-    output += "Current buffer values";
-    output += "\n";
-    for (vector<vector<uint8_t>>::iterator row_it = buffer.begin(); row_it != buffer.end(); row_it++)
-    {
-        output += print_buff(*row_it);
-        output += "\n";
-    }
-    output += "\n";
     return output;
 }
 

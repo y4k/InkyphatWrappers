@@ -2,8 +2,8 @@
 
 Wrappers for:
 
-1) Inkyphat from [Pimoroni](https://shop.pimoroni.com/products/inky-phat)
-2) Blinkt from [Pimoroni](https://shop.pimoroni.com/products/blinkt)
+1) [Inkyphat](https://shop.pimoroni.com/products/inky-phat) from [Pimoroni](https://shop.pimoroni.com/)
+2) [Blinkt](https://shop.pimoroni.com/products/blinkt) from [Pimoroni](https://shop.pimoroni.com/)
 
 When used on a Raspberry Pi, requires the [wiringPi library](http://wiringpi.com/download-and-install/)
 

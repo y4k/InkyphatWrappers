@@ -1,5 +1,4 @@
 CC=g++ -std=c++11 
-INCLUDE=-I.
 DEBUG=-O2
 CXXFLAGS=-Wall $(INCLUDE)
 
@@ -19,33 +18,33 @@ LDCONFIG=ldconfig
 # Inkyphat
 INKY_DIR=inkyphat
 INKY_LIB_NAME=libinkyphat.so
-INKY_HEADERS=$(INKY_DIR)/*.h;
+INKY_HEADERS=$(INKY_DIR)/*h
 
 # Blinkt
 BLINKT_DIR=blinkt
 BLINKT_LIB_NAME=libblinkt.so
-BLINKT_HEADERS=$(BLINKT_DIR)/*h;
+BLINKT_HEADERS=$(BLINKT_DIR)/*.h
 
 all: install-inkyphat install-blinkt
 
 # Inkyphat
 $(INKY_LIB_NAME): $(INKY_DIR)/*cpp $(INKY_HEADERS)
-	$Q $(CC) $(CXXFLAGS) $(LINK_WIRING_PI) $(SHARED_LIB_FLAGS) -o $(INKY_LIB_NAME) $^
+	$Q $(CC) $(CXXFLAGS) $(SHARED_LIB_FLAGS) -o $(INKY_LIB_NAME) $^
 
 .PHONY: install-inkyphat
 install-inkyphat: $(INKY_LIB_NAME)
 	$Q echo "[Installing Inkyphat headers]"
-	$Q install -m 0755 -d					$(DEST_DIR)$(PREFIX)/include #Creates the directory if it doesn't exist
-	$Q install -m 0644 $(INKY_DIR)/$(INKY_HEADERS) 		$(DEST_DIR)$(PREFIX)/include #Installs the headers in the new folder
+	$Q install -m 0755 -d                                   $(DEST_DIR)$(PREFIX)/include #Creates the directory if it doesn't exist
+	$Q install -m 0644 $(INKY_HEADERS)                 $(DEST_DIR)$(PREFIX)/include #Installs the headers in the new folder
 	$Q echo "[Installing Inkyphat shared library]"
-	$Q install -m 0755 -d					$(DEST_DIR)$(PREFIX)/lib #Creates the directory if it doesn't exist
-	$Q install -m 0755 $(INKY_LIB_NAME) 		$(DEST_DIR)$(PREFIX)/lib/$(INKY_LIB_NAME) #Installs the library in the appropriate folder
-	$Q (LDCONFIG)
+	$Q install -m 0755 -d                                   $(DEST_DIR)$(PREFIX)/lib #Creates the directory if it doesn't exist
+	$Q install -m 0755 $(INKY_LIB_NAME)                     $(DEST_DIR)$(PREFIX)/lib/$(INKY_LIB_NAME) #Installs the library in the appropriate folder
+	$Q $(LDCONFIG)
 
 .PHONY: uninstall-inkyphat
-install-inkyphat:
+uninstall-inkyphat:
 	$Q echo "[Uninstalling Inkyphat]"
-	$Q cd $(DEST_DIR)$(PREFIX)/include/ && rm -f $(INKY_HEADERS)
+	$Q cd $(DEST_DIR)$(PREFIX)/include/ && rm -f $(notdir $(INKY_HEADERS))
 	$Q cd $(DEST_DIR)$(PREFIX)/lib/ && rm -f $(INKY_LIB_NAME)
 	$Q $(LDCONFIG)
 
@@ -55,20 +54,23 @@ test-inkyphat:
 	$Q $(CC) $(CXXFLAGS) $(INKY_DIR)_test/main.cpp $(LINK_WIRING_PI) -linkyphat -o $(TEST_DIR)/inky_test.out
 
 # Blinkt
+$(BLINKT_LIB_NAME): $(BLINKT_DIR)/*cpp $(BLINKT_HEADERS)
+	$Q $(CC) $(CXXFLAGS) $(SHARED_LIB_FLAGS) -o $(BLINKT_LIB_NAME) $^
+
 .PHONY: install-blinkt
 install-blinkt: $(BLINKT_LIB_NAME)
 	$Q echo "[Installing Blinkt headers]"
-	$Q install -m 0755 -d					$(DEST_DIR)$(PREFIX)/include #Creates the directory if it doesn't exist
-	$Q install -m 0644 $(BLINKT_DIR)/$(BLINKT_HEADERS) 		$(DEST_DIR)$(PREFIX)/include #Installs the headers in the new folder
+	$Q install -m 0755 -d                                   $(DEST_DIR)$(PREFIX)/include #Creates the directory if it doesn't exist
+	$Q install -m 0644 $(BLINKT_HEADERS)      $(DEST_DIR)$(PREFIX)/include #Installs the headers in the new folder
 	$Q echo "[Installing Blinkt shared library]"
-	$Q install -m 0755 -d					$(DEST_DIR)$(PREFIX)/lib #Creates the directory if it doesn't exist
-	$Q install -m 0755 $(BLINKT_LIB_NAME) 		$(DEST_DIR)$(PREFIX)/lib/$(BLINKT_LIB_NAME) #Installs the library in the appropriate folder
-	$Q (LDCONFIG)
+	$Q install -m 0755 -d                                   $(DEST_DIR)$(PREFIX)/lib #Creates the directory if it doesn't exist
+	$Q install -m 0755 $(BLINKT_LIB_NAME)                   $(DEST_DIR)$(PREFIX)/lib/$(BLINKT_LIB_NAME) #Installs the library in the appropriate folder
+	$Q $(LDCONFIG)
 
 .PHONY: uninstall-blinkt
-install-blinkt:
+uninstall-blinkt:
 	$Q echo "[Uninstalling Blinkt]"
-	$Q cd $(DEST_DIR)$(PREFIX)/include/ && rm -f $(BLINKT_HEADERS)
+	$Q cd $(DEST_DIR)$(PREFIX)/include/ && rm -f $(notdir $(BLINKT_HEADERS))
 	$Q cd $(DEST_DIR)$(PREFIX)/lib/ && rm -f $(BLINKT_LIB_NAME)
 	$Q $(LDCONFIG)
 
@@ -79,5 +81,7 @@ test-blinkt:
 
 .PHONY: clean
 clean:
-	rm -fr $(OBJ_DIR)
-	rm -fr $(TEST_DIR)
+	$Q echo "[Cleaning. Removing *.so and *.o along with the test directory]"
+	$Q rm -fr $(TEST_DIR)
+	$Q rm -f *.so
+	$Q rm -f *.o

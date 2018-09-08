@@ -1,38 +1,57 @@
 #ifndef BLINKT_H
 #define BLINKT_H
 
-#include <bcm2835.h>  // communicate with gpio
-#include <iostream>   // genuinely only here to output the word 'Dead'
-#include <stdint.h>   // fixed width ints to hold Pixel values
+#include <iostream>
+#include <mutex>
 #include <unistd.h>   // usleep
-#include <stdlib.h>   // basically everything I think   definitely ramd
-#include "pixel.h"    // Pixel and PixelList classes
-#include "clinkt.h"   // just leave this one in
-#include "low_level.h"// signal, flushBuffer, and other goodies
+#include <vector>
 
-#include <array>  // size() I think
+#include "pixel.h"    // Pixel classes
 
+#include "blinktConstants.h"
 
-/*
- * Mimics and exposes the Pixel list functions.
- */
-extern "C"
+#include <wiringPi.h>
+
+using namespace std;
+
+class Blinkt
 {
-	int init();
-	int shutdown();
+	public:
+		static Blinkt& Instance()
+		{
+			static Blinkt instance;
+			return instance;
+		}
+		Blinkt(Blinkt const &) = delete;
+		void operator=(Blinkt const &) = delete;
 
-	int on_all(uint8_t r, uint8_t g, uint8_t b, uint8_t br);
-	int on_pixel(uint8_t pixel, uint8_t r, uint8_t g, uint8_t b, uint8_t br);
-	int off_all();
-	int off_pixel(uint8_t pixel);
+		~Blinkt(void);
+		uint32_t getPixel(int p);
+        int vectorLength = 13;
+        void show();
+        void fade(int millisecs = 500);
+        void rise(int millisecs = 500, int brightnesss = 3);   //! arbitrary number
+        void crossfade(Blinkt& otherParent, int steps = 5);      //! more arbitrary numbers
 
-	int set_pixels(uint8_t r, uint8_t g, uint8_t b, uint8_t br);
+		void setP(uint32_t pixel, int x = 0);
+        void setFullPixel(uint32_t pixel, int x);
+        void setP(uint8_t r, uint8_t g, uint8_t b, uint8_t br, int x = 0);
 
-	int set_pixel(uint8_t pixel, uint8_t r, uint8_t g, uint8_t b, uint8_t br);
-	int update();
+		void writeByte(uint8_t byte);
+		void flushBuffer(int length = NUM_LEDS);
 
-	// void fade(int millisecs = 500);
-	// void rise(int millisecs = 500, int brightnesss = 3);   //! arbitrary number
-	// void crossfade(PixelList otherParent, int steps = 5);      //! more arbitrary numbers
+	  private:
+        Blinkt(void); // Private constructor ensures singleton operation
+        mutex _lock; // Mutex for thread safety
+        std::vector<Pixel> pVector; // Vector of pixels
+
+		uint8_t _mosi_pin = MOSI;
+		uint8_t _sclk_pin = SCLK;
+};
+
+inline void setPixel(Blinkt& plist, uint32_t p = 7, int x = 0)
+{
+	plist.setP(p, x);
 }
-#endif // BLINKT_H
+
+#endif
