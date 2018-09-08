@@ -24,7 +24,6 @@ int main(int argc, char* argv[])
         cout << "WiringPi correctly initialised" << endl;
     }
     
-    // defaults and useful pixels
     Blinkt& blinkt = Blinkt::Instance();
     
     Pixel myPixel = Pixel(255,255,255);
@@ -38,9 +37,9 @@ int main(int argc, char* argv[])
     setPixel(blinkt, 0b00000000111111110000000000000111, 2);
     setPixel(blinkt, green + red, 3);
     setPixel(blinkt, red, 4);
-    setPixel(blinkt, 0, 5);  // blank pixel 'spacer'
+    setPixel(blinkt, myPixel.getPixel(), 5);  // pre-defined Pixels can be used to set values
     setPixel(blinkt, white, 6);
-    setPixel(blinkt, myPixel.getPixel(), 7);  // pre-defined Pixels can be called
+    setPixel(blinkt, myPixel, 7);  // pre-defined Pixels can be used to set values
 
     blinkt.show();
     usleep(2000000);
@@ -64,6 +63,12 @@ int main(int argc, char* argv[])
 
     for (int i = 0; i < 8; i++)
         { setPixel(AllRed, red, i); }
+
+    AllRed.show();
+    usleep(1000000);
+
+    for (int i = 0; i < 8; i++)
+        { setPixel(AllBlack, 0, i); }
 
     AllBlack.show();
     usleep(1000000);

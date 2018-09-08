@@ -3,7 +3,6 @@
 Pixel::Pixel()
 {
   colour = DEFAULT_BRIGHTNESS;
-  colour = DEFAULT_BRIGHTNESS;
 }
 
 Pixel::Pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br)  // Always move towards the uint32_t models and try to return those

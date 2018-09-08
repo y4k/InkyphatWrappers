@@ -24,7 +24,6 @@ class Pixel
         void setColour(uint8_t r, uint8_t g, uint8_t b);  // calls setFullPixel with current brightness
     
     private:
-        static uint8_t defaultBrightness;
         uint8_t brightness;
 };
 

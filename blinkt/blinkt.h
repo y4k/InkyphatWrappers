@@ -34,8 +34,8 @@ class Blinkt
         void crossfade(Blinkt& otherParent, int steps = 5);      //! more arbitrary numbers
 
 		void setP(uint32_t pixel, int x = 0);
-        void setFullPixel(uint32_t pixel, int x);
         void setP(uint8_t r, uint8_t g, uint8_t b, uint8_t br, int x = 0);
+        void setFullPixel(uint32_t pixel, int x);
 
 		void writeByte(uint8_t byte);
 		void flushBuffer(int length = NUM_LEDS);
@@ -49,9 +49,15 @@ class Blinkt
 		uint8_t _sclk_pin = SCLK;
 };
 
-inline void setPixel(Blinkt& plist, uint32_t p = 7, int x = 0)
+inline void setPixel(Blinkt& blinkt, uint32_t p = 7, int x = 0)
 {
-	plist.setP(p, x);
+	blinkt.setP(p, x);
+}
+
+inline void setPixel(Blinkt& blinkt, Pixel& p, int x = 0)
+{
+	uint32_t pixelValue = p.getPixel();
+	setPixel(blinkt, pixelValue, x);
 }
 
 #endif
