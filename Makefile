@@ -55,11 +55,6 @@ uninstall-inkyphat:
 	$Q cd $(DEST_DIR)$(PREFIX)/lib/ && rm -f $(INKY_LIB_NAME)
 	$Q $(LDCONFIG)
 
-.PHONY: test-inkyphat
-test-inkyphat:
-	$Q mkdir -p $(OUT_DIR)
-	$Q $(CC) $(CXXFLAGS) $(TEST_DIR)/main.cpp $(LINK_WIRING_PI) -linkyphat -o $(TEST_DIR)/inky_test.out
-
 # Blinkt
 $(BLINKT_LIB_NAME): $(BLINKT_DIR)/*cpp $(BLINKT_HEADERS)
 	$Q $(CC) $(CXXFLAGS) $(SHARED_LIB_FLAGS) -o $@ $^
@@ -81,11 +76,6 @@ uninstall-blinkt:
 	$Q cd $(DEST_DIR)$(PREFIX)/lib/ && rm -f $(BLINKT_LIB_NAME)
 	$Q $(LDCONFIG)
 
-.PHONY: test-blinkt
-test-blinkt:
-	$Q mkdir -p $(OUT_DIR)
-	$Q $(CC) $(CXXFLAGS) $(BLINKT_DIR)_test/main.cpp $(LINK_WIRING_PI) -lblinkt -o $(TEST_DIR)/blinkt_test.out
-
 .PHONY: install-joybonnet
 install-joybonnet: $(JOY_BONNET_LIB_NAME)
 	$Q echo "[Installing JoyBonnet headers]"
@@ -105,7 +95,7 @@ uninstall-joybonnet:
 
 .PHONY: clean
 clean:
-	$Q echo "[Cleaning. Removing *.so and *.o along with the test directory]"
+	$Q echo "[Cleaning. Removing *.so and *.o along with the output directory]"
 	$Q rm -fr $(OUT_DIR)
 	$Q rm -f *.so
 	$Q rm -f *.o

@@ -25,6 +25,12 @@ JoyBonnet::JoyBonnet()
     
     pullUpDnControl(PLAYER_2_BUTTON_PIN, PUD_UP);
     wiringPiISR(PLAYER_2_BUTTON_PIN, INT_EDGE_RISING, &p2_callback);
+
+    // Setup i2c communication to the joystick
+    if (wiringPiI2CSetup(ADS1x15_DEFAULT_ADDRESS) == -1)
+    {
+        cout << "Wiring Pi i2c setup failed:" << std::strerror(errno) << endl;
+    }
 }
 
 void JoyBonnet::x_callback(void)
@@ -85,4 +91,43 @@ void JoyBonnet::addHandler(int pin, const function<void()> callback)
 {
     cout << "Handler added for " << pin << endl;
     _callbacks[pin].push_back(callback);
+}
+
+void JoyBonnet::read_joystick(int channel)
+{
+    configword = ADS1015_REG_CONFIG_CQUE_NONE |
+                 ADS1015_REG_CONFIG_CLAT_NONLAT |
+                 ADS1015_REG_CONFIG_CPOL_ACTVLOW |
+                 ADS1015_REG_CONFIG_CMODE_TRAD |
+                 ADS1015_REG_CONFIG_DR_1600SPS |
+                 ADS1015_REG_CONFIG_MODE_SINGLE |
+                 ADS1015_REG_CONFIG_GAIN_ONE |
+                 _channels[channel] |
+                 ADS1015_REG_CONFIG_OS_SINGLE;
+
+    configdata = [configword >> 8, configword & 0xFF]
+
+    //print("Setting config byte = 0x%02X%02X" % (configdata[0], configdata[1]))
+    bus.write_i2c_block_data(ADS1x15_DEFAULT_ADDRESS, ADS1x15_POINTER_CONFIG, configdata)
+
+    configdata = bus.read_i2c_block_data(ADS1x15_DEFAULT_ADDRESS, ADS1x15_POINTER_CONFIG, 2) 
+    //print("Getting config byte = 0x%02X%02X" % (configdata[0], configdata[1]))
+
+    while True:
+        try:
+        configdata = bus.read_i2c_block_data(ADS1x15_DEFAULT_ADDRESS, ADS1x15_POINTER_CONFIG, 2) 
+        //print("Getting config byte = 0x%02X%02X" % (configdata[0], configdata[1]))
+        if (configdata[0] & 0x80):
+            break
+        except:
+        pass
+    
+    
+    //read data out!
+    analogdata = bus.read_i2c_block_data(ADS1x15_DEFAULT_ADDRESS, ADS1x15_POINTER_CONVERSION, 2)
+    //print(analogdata),
+    retval = (analogdata[0] << 8) | analogdata[1]
+    retval /= 16
+    //print("-> %d" %retval)
+    return retval
 }
