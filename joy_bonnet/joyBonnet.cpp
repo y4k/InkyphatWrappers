@@ -1,5 +1,7 @@
 #include "joyBonnet.h"
 
+using namespace std;
+
 JoyBonnet::JoyBonnet()
 {
     pullUpDnControl(X_BUTTON_PIN, PUD_UP);
@@ -27,57 +29,49 @@ JoyBonnet::JoyBonnet()
     wiringPiISR(PLAYER_2_BUTTON_PIN, INT_EDGE_RISING, &p2_callback);
 
     // Setup i2c communication to the joystick
-    if (wiringPiI2CSetup(ADS1x15_DEFAULT_ADDRESS) == -1)
+    if ( (_i2cFileHandler = wiringPiI2CSetup(ADS1x15_DEFAULT_ADDRESS)) == -1)
     {
-        cout << "Wiring Pi i2c setup failed:" << std::strerror(errno) << endl;
+        cout << "Wiring Pi i2c setup failed:" << strerror(errno) << endl;
     }
 }
 
 void JoyBonnet::x_callback(void)
 {
-    cout << "Executing for X" << endl;
     JoyBonnet::Instance().execute_callbacks(X_BUTTON_PIN);
 }
 
 void JoyBonnet::y_callback(void)
 {
-    cout << "Executing for Y" << endl;
     JoyBonnet::Instance().execute_callbacks(Y_BUTTON_PIN);
 }
 
 void JoyBonnet::a_callback(void)
 {
-    cout << "Executing for A" << endl;
     JoyBonnet::Instance().execute_callbacks(A_BUTTON_PIN);
 }
 
 void JoyBonnet::b_callback(void)
 {
-    cout << "Executing for B" << endl;
     JoyBonnet::Instance().execute_callbacks(B_BUTTON_PIN);
 }
 
 void JoyBonnet::start_callback(void)
 {
-    cout << "Executing for START" << endl;
     JoyBonnet::Instance().execute_callbacks(START_BUTTON_PIN);
 }
 
 void JoyBonnet::select_callback(void)
 {
-    cout << "Executing for SELECT" << endl;
     JoyBonnet::Instance().execute_callbacks(SELECT_BUTTON_PIN);
 }
 
 void JoyBonnet::p1_callback(void)
 {
-    cout << "Executing for PLAYER 1" << endl;
     JoyBonnet::Instance().execute_callbacks(PLAYER_1_BUTTON_PIN);
 }
 
 void JoyBonnet::p2_callback(void)
 {
-    cout << "Executing for PLAYER 2" << endl;
     JoyBonnet::Instance().execute_callbacks(PLAYER_2_BUTTON_PIN);
 }
 
@@ -89,13 +83,12 @@ void JoyBonnet::execute_callbacks(int pin)
 
 void JoyBonnet::addHandler(int pin, const function<void()> callback)
 {
-    cout << "Handler added for " << pin << endl;
     _callbacks[pin].push_back(callback);
 }
 
-void JoyBonnet::read_joystick(int channel)
+int JoyBonnet::read_joystick(int channel)
 {
-    configword = ADS1015_REG_CONFIG_CQUE_NONE |
+    int configword = ADS1015_REG_CONFIG_CQUE_NONE |
                  ADS1015_REG_CONFIG_CLAT_NONLAT |
                  ADS1015_REG_CONFIG_CPOL_ACTVLOW |
                  ADS1015_REG_CONFIG_CMODE_TRAD |
@@ -105,29 +98,44 @@ void JoyBonnet::read_joystick(int channel)
                  _channels[channel] |
                  ADS1015_REG_CONFIG_OS_SINGLE;
 
-    configdata = [configword >> 8, configword & 0xFF]
+    int configdata[2] = { configword >> 8, configword & 0xFF};
+    int writeBytes = configdata[0] | configdata[1] << 8;
+    if (wiringPiI2CWriteReg16(_i2cFileHandler, ADS1x15_POINTER_CONFIG, writeBytes) == -1)
+    {
+        cout << "Wiring Pi Write16 Reg failed:" << strerror(errno) << endl;
+    }
 
-    //print("Setting config byte = 0x%02X%02X" % (configdata[0], configdata[1]))
-    bus.write_i2c_block_data(ADS1x15_DEFAULT_ADDRESS, ADS1x15_POINTER_CONFIG, configdata)
+    int readValue = wiringPiI2CReadReg16(_i2cFileHandler, ADS1x15_POINTER_CONFIG);
 
-    configdata = bus.read_i2c_block_data(ADS1x15_DEFAULT_ADDRESS, ADS1x15_POINTER_CONFIG, 2) 
-    //print("Getting config byte = 0x%02X%02X" % (configdata[0], configdata[1]))
+    while (1)
+    {
+        readValue = wiringPiI2CReadReg16(_i2cFileHandler, ADS1x15_POINTER_CONFIG);
 
-    while True:
-        try:
-        configdata = bus.read_i2c_block_data(ADS1x15_DEFAULT_ADDRESS, ADS1x15_POINTER_CONFIG, 2) 
-        //print("Getting config byte = 0x%02X%02X" % (configdata[0], configdata[1]))
-        if (configdata[0] & 0x80):
-            break
-        except:
-        pass
-    
-    
-    //read data out!
-    analogdata = bus.read_i2c_block_data(ADS1x15_DEFAULT_ADDRESS, ADS1x15_POINTER_CONVERSION, 2)
-    //print(analogdata),
-    retval = (analogdata[0] << 8) | analogdata[1]
-    retval /= 16
-    //print("-> %d" %retval)
-    return retval
+        if (((readValue >> 8) & 0xFF) & 0x80)
+        {
+            int analogdata = wiringPiI2CReadReg16(_i2cFileHandler, ADS1x15_POINTER_CONVERSION);
+
+            int b1 = (analogdata >> 8);
+            int b2 = (analogdata & 0xFF);
+            // cout << b1 << endl;
+            // cout << b2 << endl;
+
+            cout << ((b1 << 8)|b2) << endl;
+            cout << ((b2 << 8)|b1) << endl; // It's this ONE!!!!
+
+            int value = (analogdata >> 4) & 0xFFF; // Gets 12 bit value and mask it just in case
+            // cout << "Channel[" << channel << "]: " << value << endl;
+            return analogdata/16;
+        }
+    }
+}
+
+int JoyBonnet::read_joystick_x()
+{
+    return read_joystick(1);
+}
+
+int JoyBonnet::read_joystick_y()
+{
+    return -read_joystick(0);
 }
