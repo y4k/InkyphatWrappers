@@ -115,7 +115,7 @@ int JoyBonnet::read_joystick(int channel)
         {
             int analogdata = wiringPiI2CReadReg16(_i2cFileHandler, ADS1x15_POINTER_CONVERSION);
 
-            analogdata = analogdata >> 4 & 0xFFF; // Gets 12 bit value and mask it just in case
+            analogdata = (analogdata >> 4) & 0xFFF; // Gets 12 bit value and mask it just in case
 
             int b1 = (analogdata >> 8);
             int b2 = (analogdata & 0xFF);

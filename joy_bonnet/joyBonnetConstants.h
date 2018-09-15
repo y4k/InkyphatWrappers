@@ -30,7 +30,7 @@
 #define JOYSTICK_OFFSET 800
 #define JOYSTICK_ACTIVATION_THRESHOLD 400
 
-// ###################################### ADS1015 microdriver #################################
+// ###################################### ADS1015 ADC microdriver #################################
 // # Register and other configuration values:
 #define ADS1x15_DEFAULT_ADDRESS        0x48
 #define ADS1x15_POINTER_CONVERSION     0x00
