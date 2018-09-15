@@ -1,6 +1,6 @@
 CC=g++ -std=c++11 
 DEBUG=-O2
-CXXFLAGS=-Wall $(INCLUDE)
+CXXFLAGS=-Wall $(DEBUG)
 
 Q ?=@ # Helper to make commands silent
 

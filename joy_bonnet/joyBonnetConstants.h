@@ -27,8 +27,8 @@
 #define JOYSTICK_SDA 2
 #define JOYSTICK_SCL 5
 
-#define JOYSTICK_LOW_THRESHOLD 800
-#define JOYSTICK_HIGH_THRESHOLD 2500
+#define JOYSTICK_OFFSET 800
+#define JOYSTICK_ACTIVATION_THRESHOLD 400
 
 // ###################################### ADS1015 microdriver #################################
 // # Register and other configuration values:

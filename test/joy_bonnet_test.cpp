@@ -23,7 +23,12 @@ int main(void)
     // display counter value every second.
     while (1)
     {
-        delay( 1000 ); // wait 1 second
+        int x = joy.read_joystick_x();
+        int y = joy.read_joystick_y();
+        cout << "[" << x << "," << y << "]" << endl;
+
+        cout << joy.read_joystick_direction() << endl;
+        delay(100); // wait 1 second
     }
     
     return 0;

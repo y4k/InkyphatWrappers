@@ -8,6 +8,19 @@
 
 using namespace std;
 
+enum JoystickDirection
+{
+    NONE = 0,
+    UP = 1,
+    DOWN = 2,
+    RIGHT = 4,
+    UP_RIGHT = 5,
+    DOWN_RIGHT = 6,
+    LEFT = 8,
+    UP_LEFT = 9,
+    DOWN_LEFT = 10
+};
+
 class JoyBonnet
 {
     public:
@@ -33,6 +46,8 @@ class JoyBonnet
 
         int read_joystick_x();
         int read_joystick_y();
+
+        JoystickDirection read_joystick_direction();
 
       private:
         int read_joystick(int channel);

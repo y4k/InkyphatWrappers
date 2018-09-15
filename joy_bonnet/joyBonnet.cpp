@@ -115,27 +115,50 @@ int JoyBonnet::read_joystick(int channel)
         {
             int analogdata = wiringPiI2CReadReg16(_i2cFileHandler, ADS1x15_POINTER_CONVERSION);
 
+            analogdata = analogdata >> 4 & 0xFFF; // Gets 12 bit value and mask it just in case
+
             int b1 = (analogdata >> 8);
             int b2 = (analogdata & 0xFF);
-            // cout << b1 << endl;
-            // cout << b2 << endl;
 
-            cout << ((b1 << 8)|b2) << endl;
-            cout << ((b2 << 8)|b1) << endl; // It's this ONE!!!!
-
-            int value = (analogdata >> 4) & 0xFFF; // Gets 12 bit value and mask it just in case
-            // cout << "Channel[" << channel << "]: " << value << endl;
-            return analogdata/16;
+            return ((b2 << 8) | b1); // Rearrange the byte order
         }
     }
 }
 
 int JoyBonnet::read_joystick_x()
 {
-    return read_joystick(1);
+    return read_joystick(1) - JOYSTICK_OFFSET;
 }
 
 int JoyBonnet::read_joystick_y()
 {
-    return -read_joystick(0);
+    return JOYSTICK_OFFSET - read_joystick(0);
+}
+
+JoystickDirection JoyBonnet::read_joystick_direction()
+{
+    int x = read_joystick_x();
+    int y = read_joystick_y();
+
+    int value = 0;
+
+    if(y < -JOYSTICK_ACTIVATION_THRESHOLD)
+    {
+        value += 2;
+    }
+    else if(y > JOYSTICK_ACTIVATION_THRESHOLD)
+    {
+        value += 1;
+    }
+
+    if (x < -JOYSTICK_ACTIVATION_THRESHOLD)
+    {
+        value += 8;
+    }
+    else if(x > JOYSTICK_ACTIVATION_THRESHOLD)
+    {
+        value += 4;
+    }
+
+    return static_cast<JoystickDirection>(value);
 }
