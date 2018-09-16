@@ -1,18 +1,6 @@
 #ifndef JOY_BONNET_CONSTANTS_H
 #define JOY_BONNET_CONSTANTS_H
 
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <functional>
-#include <utility>
-#include <vector>
-#include <map>
-#include <algorithm>
-#include <thread>
-
 // Button pin definitions - uses the BCM numbering scheme
 #define X_BUTTON_PIN 16
 #define Y_BUTTON_PIN 13
@@ -28,7 +16,10 @@
 #define JOYSTICK_SCL 5
 
 #define JOYSTICK_OFFSET 800
-#define JOYSTICK_ACTIVATION_THRESHOLD 400
+#define JOYSTICK_ACTIVATION_THRESHOLD 600
+#define JOYSTICK_ACTIVATION_THRESHOLD_SQUARED JOYSTICK_ACTIVATION_THRESHOLD*JOYSTICK_ACTIVATION_THRESHOLD
+
+#define JOYSTICK_ANGLE_CONST 0.41421356237309503
 
 // ###################################### ADS1015 ADC microdriver #################################
 // # Register and other configuration values:

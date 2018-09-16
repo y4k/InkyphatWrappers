@@ -76,6 +76,9 @@ uninstall-blinkt:
 	$Q cd $(DEST_DIR)$(PREFIX)/lib/ && rm -f $(BLINKT_LIB_NAME)
 	$Q $(LDCONFIG)
 
+$(JOY_BONNET_LIB_NAME): $(JOY_BONNET_DIR)/*cpp $(JOY_BONNET_HEADERS)
+	$Q $(CC) $(CXXFLAGS) $(SHARED_LIB_FLAGS) -o $@ $^
+
 .PHONY: install-joybonnet
 install-joybonnet: $(JOY_BONNET_LIB_NAME)
 	$Q echo "[Installing JoyBonnet headers]"

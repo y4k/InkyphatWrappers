@@ -3,6 +3,19 @@
 
 #include "joyBonnetConstants.h"
 
+#include <iostream>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <functional>
+#include <utility>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <thread>
+#include <tuple>
+
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
 
@@ -10,16 +23,19 @@ using namespace std;
 
 enum JoystickDirection
 {
-    NONE = 0,
-    UP = 1,
-    DOWN = 2,
-    RIGHT = 4,
-    UP_RIGHT = 5,
-    DOWN_RIGHT = 6,
-    LEFT = 8,
-    UP_LEFT = 9,
-    DOWN_LEFT = 10
+    NONE = -1,
+    UP = 0,
+    UP_RIGHT = 1,
+    RIGHT = 2,
+    DOWN_RIGHT = 3,
+    DOWN = 4,
+    DOWN_LEFT = 5,
+    LEFT = 6,
+    UP_LEFT = 7,
 };
+
+int check_top_right_quadrant(int x, int y);
+string print_direction(JoystickDirection direction);
 
 class JoyBonnet
 {
@@ -44,6 +60,7 @@ class JoyBonnet
 
         void addHandler(int pin, const function<void()> callback);
 
+        tuple<int, int> read_joystick_coords();
         int read_joystick_x();
         int read_joystick_y();
 

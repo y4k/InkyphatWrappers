@@ -33,6 +33,8 @@ JoyBonnet::JoyBonnet()
     {
         cout << "Wiring Pi i2c setup failed:" << strerror(errno) << endl;
     }
+
+    // Create constants for joystick comparison
 }
 
 void JoyBonnet::x_callback(void)
@@ -125,6 +127,14 @@ int JoyBonnet::read_joystick(int channel)
     }
 }
 
+tuple<int,int> JoyBonnet::read_joystick_coords()
+{
+    return make_tuple(
+        read_joystick_x(),
+        read_joystick_y()
+        );
+}
+
 int JoyBonnet::read_joystick_x()
 {
     return read_joystick(1) - JOYSTICK_OFFSET;
@@ -140,25 +150,87 @@ JoystickDirection JoyBonnet::read_joystick_direction()
     int x = read_joystick_x();
     int y = read_joystick_y();
 
-    int value = 0;
+    int result = -1;
+    if (x > 0)
+    {
+        if (y > 0)
+        {
+            result = check_top_right_quadrant(x, y);
+        }
+        else
+        {
+            result = check_top_right_quadrant(x, -y);
+            if(result != -1)
+            {
+                result = 4 - result;
+            }
+        }
+    }
+    else
+    {
+        if (y < 0)
+        {
+            result = check_top_right_quadrant(-x, -y);
+            if(result != -1)
+            {
+                result += 4;
+            }
+        }
+        else
+        {
+            result = check_top_right_quadrant(-x, y);
+            if(result != -1)
+            {
+                result = 8 - result;
+                result %= 8;
+            }
+        }
+    }
 
-    if(y < -JOYSTICK_ACTIVATION_THRESHOLD)
-    {
-        value += 2;
-    }
-    else if(y > JOYSTICK_ACTIVATION_THRESHOLD)
-    {
-        value += 1;
-    }
+    return static_cast<JoystickDirection>(result);
+}
 
-    if (x < -JOYSTICK_ACTIVATION_THRESHOLD)
+int check_top_right_quadrant(int x, int y)
+{
+    if(y > JOYSTICK_ACTIVATION_THRESHOLD && x < y * JOYSTICK_ANGLE_CONST)
     {
-        value += 8;
+        // UP
+        return 0;
     }
-    else if(x > JOYSTICK_ACTIVATION_THRESHOLD)
+    else if(x > JOYSTICK_ACTIVATION_THRESHOLD && y < x * JOYSTICK_ANGLE_CONST)
     {
-        value += 4;
+        // RIGHT
+        return 2;
     }
+    else if(x*x + y*y > JOYSTICK_ACTIVATION_THRESHOLD_SQUARED)
+    {
+        // UP RIGHT
+        return 1;
+    }
+    return -1;
+}
 
-    return static_cast<JoystickDirection>(value);
+string print_direction(JoystickDirection direction)
+{
+    switch(direction)
+    {
+        case UP:
+            return "UP";
+        case UP_RIGHT:
+            return "UP_RIGHT";
+        case RIGHT:
+            return "RIGHT";
+        case DOWN_RIGHT:
+            return "DOWN_RIGHT";
+        case DOWN:
+            return "DOWN";
+        case DOWN_LEFT:
+            return "DOWN_LEFT";
+        case LEFT:
+            return "LEFT";
+        case UP_LEFT:
+            return "UP_LEFT";
+        default:
+            return "None";
+    }
 }

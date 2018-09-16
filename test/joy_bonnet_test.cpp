@@ -25,9 +25,14 @@ int main(void)
     {
         int x = joy.read_joystick_x();
         int y = joy.read_joystick_y();
-        cout << "[" << x << "," << y << "]" << endl;
+        cout << "(X,Y) -> [" << x << "," << y << "]" << endl;
 
-        cout << joy.read_joystick_direction() << endl;
+        int xCoord, yCoord;
+        tie(xCoord, yCoord) = joy.read_joystick_coords();
+
+        cout << "Tuple -> [" << xCoord << "," << yCoord << "]" << endl;
+
+        cout << print_direction(joy.read_joystick_direction()) << endl;
         delay(100); // wait 1 second
     }
     
