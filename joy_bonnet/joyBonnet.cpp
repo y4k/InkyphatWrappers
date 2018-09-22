@@ -1,95 +1,170 @@
 #include "joyBonnet.h"
 
-using namespace std;
-
-JoyBonnet::JoyBonnet()
+JoyBonnet::JoyBonnet() :
+    _time_out(100),
+    _io(),
+    _guard(_io.get_executor()),
+    _x_timer(_io, asio::chrono::seconds(5))
 {
     pullUpDnControl(X_BUTTON_PIN, PUD_UP);
-    wiringPiISR(X_BUTTON_PIN, INT_EDGE_RISING, &x_callback);
+    wiringPiISR(X_BUTTON_PIN, INT_EDGE_RISING, &x_callback_rising);
+    wiringPiISR(X_BUTTON_PIN, INT_EDGE_FALLING, &x_callback_falling);
     
     pullUpDnControl(Y_BUTTON_PIN, PUD_UP);
-    wiringPiISR(Y_BUTTON_PIN, INT_EDGE_RISING, &y_callback);
+    wiringPiISR(Y_BUTTON_PIN, INT_EDGE_RISING, &y_callback_rising);
+    wiringPiISR(Y_BUTTON_PIN, INT_EDGE_FALLING, &y_callback_falling);
     
     pullUpDnControl(A_BUTTON_PIN, PUD_UP);
-    wiringPiISR(A_BUTTON_PIN, INT_EDGE_RISING, &a_callback);
+    wiringPiISR(A_BUTTON_PIN, INT_EDGE_RISING, &a_callback_rising);
+    wiringPiISR(A_BUTTON_PIN, INT_EDGE_FALLING, &a_callback_falling);
     
     pullUpDnControl(B_BUTTON_PIN, PUD_UP);
-    wiringPiISR(B_BUTTON_PIN, INT_EDGE_RISING, &b_callback);
+    wiringPiISR(B_BUTTON_PIN, INT_EDGE_RISING, &b_callback_rising);
+    wiringPiISR(B_BUTTON_PIN, INT_EDGE_FALLING, &b_callback_falling);
 
     pullUpDnControl(START_BUTTON_PIN, PUD_UP);
-    wiringPiISR(START_BUTTON_PIN, INT_EDGE_RISING, &start_callback);
+    wiringPiISR(START_BUTTON_PIN, INT_EDGE_RISING, &start_callback_rising);
+    wiringPiISR(START_BUTTON_PIN, INT_EDGE_FALLING, &start_callback_falling);
 
     pullUpDnControl(SELECT_BUTTON_PIN, PUD_UP);
-    wiringPiISR(SELECT_BUTTON_PIN, INT_EDGE_RISING, &select_callback);
+    wiringPiISR(SELECT_BUTTON_PIN, INT_EDGE_RISING, &select_callback_rising);
+    wiringPiISR(SELECT_BUTTON_PIN, INT_EDGE_FALLING, &select_callback_falling);
     
     pullUpDnControl(PLAYER_1_BUTTON_PIN, PUD_UP);
-    wiringPiISR(PLAYER_1_BUTTON_PIN, INT_EDGE_RISING, &p1_callback);
+    wiringPiISR(PLAYER_1_BUTTON_PIN, INT_EDGE_RISING, &p1_callback_rising);
+    wiringPiISR(PLAYER_1_BUTTON_PIN, INT_EDGE_FALLING, &p1_callback_falling);
     
     pullUpDnControl(PLAYER_2_BUTTON_PIN, PUD_UP);
-    wiringPiISR(PLAYER_2_BUTTON_PIN, INT_EDGE_RISING, &p2_callback);
+    wiringPiISR(PLAYER_2_BUTTON_PIN, INT_EDGE_RISING, &p2_callback_rising);
+    wiringPiISR(PLAYER_2_BUTTON_PIN, INT_EDGE_FALLING, &p2_callback_falling);
 
     // Setup i2c communication to the joystick
     if ( (_i2cFileHandler = wiringPiI2CSetup(ADS1x15_DEFAULT_ADDRESS)) == -1)
     {
-        cout << "Wiring Pi i2c setup failed:" << strerror(errno) << endl;
+        std::cout << "Wiring Pi i2c setup failed:" << strerror(errno) << std::endl;
     }
 
-    // Create constants for joystick comparison
+    // Create and start the worker thread. Call run on the blocked service from that thread.
+    _worker_thread = new asio::thread(
+     std::bind(
+       static_cast<asio::io_context::count_type (asio::io_service::*)(void)>(&asio::io_context::run),
+       &_io
+       )
+      );
 }
 
-void JoyBonnet::x_callback(void)
+JoyBonnet::~JoyBonnet()
 {
-    JoyBonnet::Instance().execute_callbacks(X_BUTTON_PIN);
+    _x_timer.cancel();
+    _io.reset();
+    _io.stop();
+    _worker_thread -> join();
+    delete _worker_thread;
 }
 
-void JoyBonnet::y_callback(void)
+// Callbacks
+void JoyBonnet::x_callback_rising(void) { }
+
+void JoyBonnet::y_callback_rising(void)
 {
-    JoyBonnet::Instance().execute_callbacks(Y_BUTTON_PIN);
 }
 
-void JoyBonnet::a_callback(void)
+void JoyBonnet::a_callback_rising(void)
 {
-    JoyBonnet::Instance().execute_callbacks(A_BUTTON_PIN);
 }
 
-void JoyBonnet::b_callback(void)
+void JoyBonnet::b_callback_rising(void)
 {
-    JoyBonnet::Instance().execute_callbacks(B_BUTTON_PIN);
 }
 
-void JoyBonnet::start_callback(void)
+void JoyBonnet::start_callback_rising(void)
 {
-    JoyBonnet::Instance().execute_callbacks(START_BUTTON_PIN);
 }
 
-void JoyBonnet::select_callback(void)
+void JoyBonnet::select_callback_rising(void)
 {
-    JoyBonnet::Instance().execute_callbacks(SELECT_BUTTON_PIN);
 }
 
-void JoyBonnet::p1_callback(void)
+void JoyBonnet::p1_callback_rising(void)
 {
-    JoyBonnet::Instance().execute_callbacks(PLAYER_1_BUTTON_PIN);
 }
 
-void JoyBonnet::p2_callback(void)
+void JoyBonnet::p2_callback_rising(void)
 {
-    JoyBonnet::Instance().execute_callbacks(PLAYER_2_BUTTON_PIN);
 }
 
-void JoyBonnet::execute_callbacks(int pin)
+// FALLING Callbacks
+void JoyBonnet::x_callback_falling(void)
 {
-    auto cb = _callbacks[pin];
-    for_each(cb.begin(), cb.end(), [](function<void()> f) { f(); });
+    std::cout << "X:" << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl;
+    // When a falling interrupt occurs, update the expires tim
+    JoyBonnet::Instance()._x_timer.expires_after(JoyBonnet::Instance()._time_out);
+    // Setup a new async wait
+    JoyBonnet::Instance()._x_timer.async_wait(
+            [&] ( const asio::error_code& e) {
+                JoyBonnet::Instance().execute_callbacks(X_BUTTON_PIN, e);
+            }
+        );
 }
 
-void JoyBonnet::addHandler(int pin, const function<void()> callback)
+void JoyBonnet::y_callback_falling(void)
 {
+    // JoyBonnet::Instance().execute_callbacks(Y_BUTTON_PIN, const asio::error_code& e);
+}
+void JoyBonnet::a_callback_falling(void)
+{
+    // JoyBonnet::Instance().execute_callbacks(A_BUTTON_PIN, const asio::error_code& e);
+}
+void JoyBonnet::b_callback_falling(void)
+{
+    // JoyBonnet::Instance().execute_callbacks(B_BUTTON_PIN, const asio::error_code& e);
+}
+void JoyBonnet::start_callback_falling(void)
+{
+    // JoyBonnet::Instance().execute_callbacks(START_BUTTON_PIN, const asio::error_code& e);
+}
+void JoyBonnet::select_callback_falling(void)
+{
+    // JoyBonnet::Instance().execute_callbacks(SELECT_BUTTON_PIN, const asio::error_code& e);
+}
+void JoyBonnet::p1_callback_falling(void)
+{
+    // JoyBonnet::Instance().execute_callbacks(PLAYER_1_BUTTON_PIN, const asio::error_code& e);
+}
+void JoyBonnet::p2_callback_falling(void)
+{
+    // JoyBonnet::Instance().execute_callbacks(PLAYER_2_BUTTON_PIN, const asio::error_code& e);
+}
+
+// Execute the callbacks for a given pin
+void JoyBonnet::execute_callbacks(int pin, const asio::error_code& e)
+{
+    if(e != asio::error::operation_aborted)
+    {
+        std::lock_guard<std::mutex> lock(_callback_lock);
+        std::cout << "Timer for " << get_pin_name(pin) << " expired" << std::endl;
+
+        auto cb = _callbacks[pin];
+        for_each(cb.begin(), cb.end(), [](std::function<void()> f) { f(); });
+    }
+    else
+    {
+        std::cout << "Timer for " << get_pin_name(pin) << " has been cancelled" << std::endl;
+    }
+}
+
+void JoyBonnet::addHandler(int pin, const std::function<void()> callback)
+{
+    std::lock_guard<std::mutex> lock(_callback_lock);
+
     _callbacks[pin].push_back(callback);
 }
 
 int JoyBonnet::read_joystick(int channel)
 {
+    std::lock_guard<std::mutex> lock(_joystick_lock);
+
+    std::cout << "Joystick read on thread:" << std::this_thread::get_id() << std::endl;
     int configword = ADS1015_REG_CONFIG_CQUE_NONE |
                  ADS1015_REG_CONFIG_CLAT_NONLAT |
                  ADS1015_REG_CONFIG_CPOL_ACTVLOW |
@@ -104,7 +179,7 @@ int JoyBonnet::read_joystick(int channel)
     int writeBytes = configdata[0] | configdata[1] << 8;
     if (wiringPiI2CWriteReg16(_i2cFileHandler, ADS1x15_POINTER_CONFIG, writeBytes) == -1)
     {
-        cout << "Wiring Pi Write16 Reg failed:" << strerror(errno) << endl;
+        std::cout << "Wiring Pi Write16 Reg failed:" << strerror(errno) << std::endl;
     }
 
     int readValue = wiringPiI2CReadReg16(_i2cFileHandler, ADS1x15_POINTER_CONFIG);
@@ -127,9 +202,9 @@ int JoyBonnet::read_joystick(int channel)
     }
 }
 
-tuple<int,int> JoyBonnet::read_joystick_coords()
+std::tuple<int,int> JoyBonnet::read_joystick_coords()
 {
-    return make_tuple(
+    return std::make_tuple(
         read_joystick_x(),
         read_joystick_y()
         );
@@ -210,7 +285,32 @@ int check_top_right_quadrant(int x, int y)
     return -1;
 }
 
-string print_direction(JoystickDirection direction)
+std::string get_pin_name(int pin)
+{
+    switch(pin)
+    {
+        case X_BUTTON_PIN:
+            return "X";
+        case Y_BUTTON_PIN:
+            return "Y";
+        case A_BUTTON_PIN:
+            return "A";
+        case B_BUTTON_PIN:
+            return "B";
+        case START_BUTTON_PIN:
+            return "START";
+        case SELECT_BUTTON_PIN:
+            return "SELECT";
+        case PLAYER_1_BUTTON_PIN:
+            return "PLAYER 1";
+        case PLAYER_2_BUTTON_PIN:
+            return "PLAYER 2";
+        default:
+            return "Unknown";
+    }
+}
+
+std::string print_direction(JoystickDirection direction)
 {
     switch(direction)
     {

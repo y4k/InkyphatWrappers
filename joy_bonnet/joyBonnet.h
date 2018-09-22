@@ -15,11 +15,13 @@
 #include <algorithm>
 #include <thread>
 #include <tuple>
+#include <mutex>
+#include <chrono>
+
+#include <asio.hpp>
 
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
-
-using namespace std;
 
 enum JoystickDirection
 {
@@ -35,7 +37,8 @@ enum JoystickDirection
 };
 
 int check_top_right_quadrant(int x, int y);
-string print_direction(JoystickDirection direction);
+std::string print_direction(JoystickDirection direction);
+std::string get_pin_name(int pin);
 
 class JoyBonnet
 {
@@ -47,31 +50,54 @@ class JoyBonnet
         }
         JoyBonnet(JoyBonnet const &) = delete; // Removed method
         void operator=(JoyBonnet const &) = delete; // Removed method
-        ~JoyBonnet(){} // Destructor
+        ~JoyBonnet(); // Destructor
 
-        static void x_callback(void);
-        static void y_callback(void);
-        static void a_callback(void);
-        static void b_callback(void);
-        static void start_callback(void);
-        static void select_callback(void);
-        static void p1_callback(void);
-        static void p2_callback(void);
+        void addHandler(int pin, const std::function<void()> callback);
 
-        void addHandler(int pin, const function<void()> callback);
-
-        tuple<int, int> read_joystick_coords();
+        std::tuple<int, int> read_joystick_coords();
         int read_joystick_x();
         int read_joystick_y();
 
         JoystickDirection read_joystick_direction();
 
-      private:
+    private:
         int read_joystick(int channel);
         JoyBonnet();// Private constructor ensures singleton operation
-        void execute_callbacks(int pin);
-        map< int, vector<function<void()> > > _callbacks;
+
+        void execute_callbacks(int pin, const asio::error_code& e);
+
+        // ASIO
+        std::chrono::milliseconds _time_out;
+        asio::io_context _io;
+        asio::thread* _worker_thread;
+        asio::executor_work_guard<asio::io_context::executor_type> _guard;
+
+        // Timers
+        asio::steady_timer _x_timer;
+
+        static void x_callback_rising(void);
+        static void x_callback_falling(void);
+        static void y_callback_rising(void);
+        static void y_callback_falling(void);
+        static void a_callback_rising(void);
+        static void a_callback_falling(void);
+        static void b_callback_rising(void);
+        static void b_callback_falling(void);
+        static void start_callback_rising(void);
+        static void start_callback_falling(void);
+        static void select_callback_rising(void);
+        static void select_callback_falling(void);
+        static void p1_callback_rising(void);
+        static void p1_callback_falling(void);
+        static void p2_callback_rising(void);
+        static void p2_callback_falling(void);
+
+        std::map< int, std::vector<std::function<void()> > > _callbacks;
+
         int _i2cFileHandler;
+
+        std::mutex _callback_lock;
+        std::mutex _joystick_lock;
 
         int _channels[4] =
             {
