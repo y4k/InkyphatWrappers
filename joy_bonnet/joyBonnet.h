@@ -73,7 +73,7 @@ class JoyBonnet
         asio::executor_work_guard<asio::io_context::executor_type> _guard;
 
         // Timers
-        asio::steady_timer _x_timer;
+        asio::high_resolution_timer _x_timer;
 
         static void x_callback_rising(void);
         static void x_callback_falling(void);

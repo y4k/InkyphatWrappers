@@ -1,7 +1,7 @@
 #include "joyBonnet.h"
 
 JoyBonnet::JoyBonnet() :
-    _time_out(100),
+    _time_out(40),
     _io(),
     _guard(_io.get_executor()),
     _x_timer(_io, asio::chrono::seconds(5))
@@ -51,6 +51,8 @@ JoyBonnet::JoyBonnet() :
        &_io
        )
       );
+
+    std::cout << "Debounce time out set at " << _time_out.count() << " milliseconds" << std::endl;
 }
 
 JoyBonnet::~JoyBonnet()
@@ -96,13 +98,13 @@ void JoyBonnet::p2_callback_rising(void)
 // FALLING Callbacks
 void JoyBonnet::x_callback_falling(void)
 {
-    std::cout << "X:" << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) << std::endl;
+    JoyBonnet &instance = JoyBonnet::Instance();
     // When a falling interrupt occurs, update the expires tim
-    JoyBonnet::Instance()._x_timer.expires_after(JoyBonnet::Instance()._time_out);
+    instance._x_timer.expires_after(instance._time_out);
     // Setup a new async wait
-    JoyBonnet::Instance()._x_timer.async_wait(
+    instance._x_timer.async_wait(
             [&] ( const asio::error_code& e) {
-                JoyBonnet::Instance().execute_callbacks(X_BUTTON_PIN, e);
+                instance.execute_callbacks(X_BUTTON_PIN, e);
             }
         );
 }
