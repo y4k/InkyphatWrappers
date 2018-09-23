@@ -74,6 +74,13 @@ class JoyBonnet
 
         // Timers
         asio::high_resolution_timer _x_timer;
+        asio::high_resolution_timer _y_timer;
+        asio::high_resolution_timer _a_timer;
+        asio::high_resolution_timer _b_timer;
+        asio::high_resolution_timer _start_timer;
+        asio::high_resolution_timer _select_timer;
+        asio::high_resolution_timer _p1_timer;
+        asio::high_resolution_timer _p2_timer;
 
         static void x_callback_rising(void);
         static void x_callback_falling(void);

@@ -6,6 +6,7 @@ Q ?=@ # Helper to make commands silent
 
 # Linking and specific compile flags
 LINK_WIRING_PI=-lwiringPi
+LINK_ASIO=-DASIO_STANDALONE -lpthread
 SHARED_LIB_FLAGS=-fPIC -shared
 
 OUT_DIR=bin
@@ -77,7 +78,7 @@ uninstall-blinkt:
 	$Q $(LDCONFIG)
 
 $(JOY_BONNET_LIB_NAME): $(JOY_BONNET_DIR)/*cpp $(JOY_BONNET_HEADERS)
-	$Q $(CC) $(CXXFLAGS) $(SHARED_LIB_FLAGS) -o $@ $^
+	$Q $(CC) $(CXXFLAGS) $(SHARED_LIB_FLAGS) $(LINK_ASIO) -o $@ $^
 
 .PHONY: install-joybonnet
 install-joybonnet: $(JOY_BONNET_LIB_NAME)

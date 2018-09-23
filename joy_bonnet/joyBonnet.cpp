@@ -1,10 +1,17 @@
 #include "joyBonnet.h"
 
 JoyBonnet::JoyBonnet() :
-    _time_out(40),
+    _time_out(100),
     _io(),
     _guard(_io.get_executor()),
-    _x_timer(_io, asio::chrono::seconds(5))
+    _x_timer(_io, _time_out),
+    _y_timer(_io, _time_out),
+    _a_timer(_io, _time_out),
+    _b_timer(_io, _time_out),
+    _start_timer(_io, _time_out),
+    _select_timer(_io, _time_out),
+    _p1_timer(_io, _time_out),
+    _p2_timer(_io, _time_out)
 {
     pullUpDnControl(X_BUTTON_PIN, PUD_UP);
     wiringPiISR(X_BUTTON_PIN, INT_EDGE_RISING, &x_callback_rising);
@@ -41,7 +48,9 @@ JoyBonnet::JoyBonnet() :
     // Setup i2c communication to the joystick
     if ( (_i2cFileHandler = wiringPiI2CSetup(ADS1x15_DEFAULT_ADDRESS)) == -1)
     {
+        #ifdef DEBUG
         std::cout << "Wiring Pi i2c setup failed:" << strerror(errno) << std::endl;
+        #endif
     }
 
     // Create and start the worker thread. Call run on the blocked service from that thread.
@@ -52,7 +61,9 @@ JoyBonnet::JoyBonnet() :
        )
       );
 
+    #ifdef DEBUG
     std::cout << "Debounce time out set at " << _time_out.count() << " milliseconds" << std::endl;
+    #endif
 }
 
 JoyBonnet::~JoyBonnet()
@@ -67,33 +78,19 @@ JoyBonnet::~JoyBonnet()
 // Callbacks
 void JoyBonnet::x_callback_rising(void) { }
 
-void JoyBonnet::y_callback_rising(void)
-{
-}
+void JoyBonnet::y_callback_rising(void) { }
 
-void JoyBonnet::a_callback_rising(void)
-{
-}
+void JoyBonnet::a_callback_rising(void) { }
 
-void JoyBonnet::b_callback_rising(void)
-{
-}
+void JoyBonnet::b_callback_rising(void) { }
 
-void JoyBonnet::start_callback_rising(void)
-{
-}
+void JoyBonnet::start_callback_rising(void) { }
 
-void JoyBonnet::select_callback_rising(void)
-{
-}
+void JoyBonnet::select_callback_rising(void) { }
 
-void JoyBonnet::p1_callback_rising(void)
-{
-}
+void JoyBonnet::p1_callback_rising(void) { }
 
-void JoyBonnet::p2_callback_rising(void)
-{
-}
+void JoyBonnet::p2_callback_rising(void) { }
 
 // FALLING Callbacks
 void JoyBonnet::x_callback_falling(void)
@@ -111,31 +108,88 @@ void JoyBonnet::x_callback_falling(void)
 
 void JoyBonnet::y_callback_falling(void)
 {
-    // JoyBonnet::Instance().execute_callbacks(Y_BUTTON_PIN, const asio::error_code& e);
+    JoyBonnet &instance = JoyBonnet::Instance();
+    // When a falling interrupt occurs, update the expires tim
+    instance._y_timer.expires_after(instance._time_out);
+    // Setup a new async wait
+    instance._y_timer.async_wait(
+            [&] ( const asio::error_code& e) {
+                instance.execute_callbacks(Y_BUTTON_PIN, e);
+            }
+        );
 }
+
 void JoyBonnet::a_callback_falling(void)
 {
-    // JoyBonnet::Instance().execute_callbacks(A_BUTTON_PIN, const asio::error_code& e);
+    JoyBonnet &instance = JoyBonnet::Instance();
+    // When a falling interrupt occurs, update the expires tim
+    instance._a_timer.expires_after(instance._time_out);
+    // Setup a new async wait
+    instance._a_timer.async_wait(
+            [&] ( const asio::error_code& e) {
+                instance.execute_callbacks(A_BUTTON_PIN, e);
+            }
+        );
 }
 void JoyBonnet::b_callback_falling(void)
 {
-    // JoyBonnet::Instance().execute_callbacks(B_BUTTON_PIN, const asio::error_code& e);
+    JoyBonnet &instance = JoyBonnet::Instance();
+    // When a falling interrupt occurs, update the expires tim
+    instance._b_timer.expires_after(instance._time_out);
+    // Setup a new async wait
+    instance._b_timer.async_wait(
+            [&] ( const asio::error_code& e) {
+                instance.execute_callbacks(B_BUTTON_PIN, e);
+            }
+        );
 }
 void JoyBonnet::start_callback_falling(void)
 {
-    // JoyBonnet::Instance().execute_callbacks(START_BUTTON_PIN, const asio::error_code& e);
+    JoyBonnet &instance = JoyBonnet::Instance();
+    // When a falling interrupt occurs, update the expires tim
+    instance._start_timer.expires_after(instance._time_out);
+    // Setup a new async wait
+    instance._start_timer.async_wait(
+            [&] ( const asio::error_code& e) {
+                instance.execute_callbacks(START_BUTTON_PIN, e);
+            }
+        );
 }
 void JoyBonnet::select_callback_falling(void)
 {
-    // JoyBonnet::Instance().execute_callbacks(SELECT_BUTTON_PIN, const asio::error_code& e);
+    JoyBonnet &instance = JoyBonnet::Instance();
+    // When a falling interrupt occurs, update the expires tim
+    instance._select_timer.expires_after(instance._time_out);
+    // Setup a new async wait
+    instance._select_timer.async_wait(
+            [&] ( const asio::error_code& e) {
+                instance.execute_callbacks(SELECT_BUTTON_PIN, e);
+            }
+        );
 }
 void JoyBonnet::p1_callback_falling(void)
 {
-    // JoyBonnet::Instance().execute_callbacks(PLAYER_1_BUTTON_PIN, const asio::error_code& e);
+    JoyBonnet &instance = JoyBonnet::Instance();
+    // When a falling interrupt occurs, update the expires tim
+    instance._p1_timer.expires_after(instance._time_out);
+    // Setup a new async wait
+    instance._p1_timer.async_wait(
+            [&] ( const asio::error_code& e) {
+                instance.execute_callbacks(PLAYER_1_BUTTON_PIN, e);
+            }
+        );
 }
 void JoyBonnet::p2_callback_falling(void)
 {
-    // JoyBonnet::Instance().execute_callbacks(PLAYER_2_BUTTON_PIN, const asio::error_code& e);
+    JoyBonnet &instance = JoyBonnet::Instance();
+    // When a falling interrupt occurs, update the expires tim
+    instance._p2_timer.expires_after(instance._time_out);
+    // Setup a new async wait
+    instance._p2_timer.async_wait(
+            [&] ( const asio::error_code& e) {
+                instance.execute_callbacks(PLAYER_2_BUTTON_PIN, e);
+            }
+        );
 }
 
 // Execute the callbacks for a given pin
@@ -144,14 +198,18 @@ void JoyBonnet::execute_callbacks(int pin, const asio::error_code& e)
     if(e != asio::error::operation_aborted)
     {
         std::lock_guard<std::mutex> lock(_callback_lock);
+        #ifdef DEBUG
         std::cout << "Timer for " << get_pin_name(pin) << " expired" << std::endl;
+        #endif
 
         auto cb = _callbacks[pin];
         for_each(cb.begin(), cb.end(), [](std::function<void()> f) { f(); });
     }
     else
     {
+        #ifdef DEBUG
         std::cout << "Timer for " << get_pin_name(pin) << " has been cancelled" << std::endl;
+        #endif
     }
 }
 
@@ -166,7 +224,6 @@ int JoyBonnet::read_joystick(int channel)
 {
     std::lock_guard<std::mutex> lock(_joystick_lock);
 
-    std::cout << "Joystick read on thread:" << std::this_thread::get_id() << std::endl;
     int configword = ADS1015_REG_CONFIG_CQUE_NONE |
                  ADS1015_REG_CONFIG_CLAT_NONLAT |
                  ADS1015_REG_CONFIG_CPOL_ACTVLOW |
@@ -206,10 +263,7 @@ int JoyBonnet::read_joystick(int channel)
 
 std::tuple<int,int> JoyBonnet::read_joystick_coords()
 {
-    return std::make_tuple(
-        read_joystick_x(),
-        read_joystick_y()
-        );
+    return std::make_tuple(read_joystick_x(), read_joystick_y());
 }
 
 int JoyBonnet::read_joystick_x()

@@ -14,7 +14,10 @@ int main(void)
 
     JoyBonnet &joy = JoyBonnet::Instance();
 
-    joy.addHandler(X_BUTTON_PIN, { [=](){ cout << "X Button!" << endl; return; }});
+    volatile int x_count = 0;
+
+    joy.addHandler(X_BUTTON_PIN, { [&x_count]() { x_count++; cout << x_count << ":X Button!" << endl; return; }});
+
     joy.addHandler(Y_BUTTON_PIN, { [=](){ cout << "Y Button!" << endl; return; }});
     joy.addHandler(A_BUTTON_PIN, { [=](){ cout << "A Button!" << endl; return; }});
     joy.addHandler(B_BUTTON_PIN, { [=](){ cout << "B Button!" << endl; return; }});
@@ -25,20 +28,15 @@ int main(void)
 
     cout << "Main thread:" << this_thread::get_id() << endl;
 
-    // display counter value every second.
     while (1)
     {
-        // int x = joy.read_joystick_x();
-        // int y = joy.read_joystick_y();
-        // cout << "(X,Y) -> [" << x << "," << y << "]" << endl;
-
         // int xCoord, yCoord;
         // tie(xCoord, yCoord) = joy.read_joystick_coords();
 
         // cout << "Tuple -> [" << xCoord << "," << yCoord << "]" << endl;
 
-        // cout << print_direction(joy.read_joystick_direction()) << endl;
-        delay(100); // wait 1 second
+        cout << print_direction(joy.read_joystick_direction()) << endl;
+        delay(100); // wait 100 millisecond
     }
     
     return 0;
