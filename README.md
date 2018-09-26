@@ -6,6 +6,8 @@ Wrappers for:
 
 1) [Inkyphat](https://shop.pimoroni.com/products/inky-phat) from [Pimoroni](https://shop.pimoroni.com/)
 2) [Blinkt](https://shop.pimoroni.com/products/blinkt) from [Pimoroni](https://shop.pimoroni.com/)
+3) [JoyBonnet](https://shop.pimoroni.com/products/adafruit-joy-bonnet-for-raspberry-pi) from [Adafruit](https://www.adafruit.com/product/3464)
+4) [Skywriter](https://shop.pimoroni.com/products/skywriter) from [Pimoroni](https://shop.pimoroni.com)
 
 When used on a Raspberry Pi, requires the [wiringPi library](http://wiringpi.com/download-and-install/)
 
@@ -109,3 +111,7 @@ for (int w = 0; w < width; w++)
 
 inky.update(); // Show the changes
 ```
+
+#### JoyBonnet
+
+#### Skywriter
