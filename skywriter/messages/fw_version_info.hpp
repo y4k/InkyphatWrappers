@@ -1,0 +1,18 @@
+#ifndef SW_MSG_FW_VERSION_INFO_H
+#define SW_MSG_FW_VERSION_INFO_H
+
+// FW_VERSION_INFO Message Definition
+
+// Header
+#define SW_MSG_FW_VERSION_INFO_SIZE 0x84      // Message Size
+#define SW_MSG_FW_VERSION_INFO_ID 0x83        // Message ID
+
+// Payload
+#define SW_MSG_FW_VERSION_INFO_PAYLOAD_ITEMS 6
+#define SW_MSG_FW_VERSION_INFO_PAYLOAD_FORMAT (1,2,1,3,1,120)
+
+#define SW_MSG_FW_VERSION_INFO_EMPTY 0x00
+#define SW_MSG_FW_VERSION_INFO_INVALIDFW 0x0A
+#define SW_MSG_FW_VERSION_INFO_VALIDFW 0xAA
+
+#endif

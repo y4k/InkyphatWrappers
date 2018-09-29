@@ -1,3 +1,6 @@
+#ifndef SW_CONSTANTS_H
+#define SW_CONSTANTS_H
+
 // I2C address
 #define ADDR_1 0x42
 #define ADDR_2 0x43
@@ -24,3 +27,5 @@
 
 //Additional constants
 #define MSG_HEADER_SIZE 4 // Number of bytes
+
+#endif

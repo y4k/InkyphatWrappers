@@ -1,0 +1,14 @@
+#ifndef SW_MSG_REQUEST_MESSAGE_H
+#define SW_MSG_REQUEST_MESSAGE_H
+
+// REQUEST_MESSAGE Message Definition
+
+// Header
+#define SW_MSG_REQUEST_MESSAGE_SIZE 0x0C      // Message Size
+#define SW_MSG_REQUEST_MESSAGE_ID 0x06        // Message ID
+
+// Payload
+#define SW_MSG_REQUEST_MESSAGE_PAYLOAD_ITEMS 3
+#define SW_MSG_REQUEST_MESSAGE_PAYLOAD_FORMAT (1,3,4)
+
+#endif
