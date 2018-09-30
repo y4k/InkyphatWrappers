@@ -1,6 +1,8 @@
 #ifndef SW_MSG_SET_RUNTIME_PARAM_H
 #define SW_MSG_SET_RUNTIME_PARAM_H
 
+#include "common.hpp"
+
 // SET_RUNTIME_PARAM Message Definition
 
 // Header
@@ -197,5 +199,8 @@ Determines whether the gesture in progress output is part of the sensor data out
 #define SW_RUN_PARAM_GEST_PROG_ARG0_ENABLE 0x00000000                       // Enabled
 #define SW_RUN_PARAM_GEST_PROG_ARG0_DISABLE 0x00000001                      // Disabled
 #define SW_RUN_PARAM_GEST_PROG_ARG1 0x00000001                              // Required
+
+Header create_set_runtime_header();
+RuntimeParameterPayload create_set_runtime_trigger_payload();
 
 #endif
