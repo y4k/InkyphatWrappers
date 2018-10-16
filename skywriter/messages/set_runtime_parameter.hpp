@@ -6,7 +6,7 @@
 // SET_RUNTIME_PARAM Message Definition
 
 // Header
-#define SW_MSG_SET_RUNTIME_PARAM_SIZE 0x10      // Message Size
+#define SW_MSG_SET_RUNTIME_SIZE 0x10      // Message Size
 #define SW_MSG_SET_RUNTIME_PARAM_ID 0xA2        // Message ID
 
 // Payload
@@ -48,29 +48,29 @@
 
 // Transmit frequency selection
 #define SW_RUN_PARAM_TX_FREQ_ID 0x0082                          // Runtime Parameter ID
-#define SW_RUN_PARAM_TX_FREQ_ARG0_CH1 0x00000001                // Use 1 channel
-#define SW_RUN_PARAM_TX_FREQ_ARG0_CH2 0x00000002                // Use 2 channel
-#define SW_RUN_PARAM_TX_FREQ_ARG0_CH3 0x00000003                // Use 3 channel
-#define SW_RUN_PARAM_TX_FREQ_ARG0_CH4 0x00000004                // Use 4 channel
-#define SW_RUN_PARAM_TX_FREQ_ARG0_CH5 0x00000005                // Use 5 channel
+#define SW_RUN_PARAM_TX_FREQ_ARG0_CH1 0x1                // Use 1 channel
+#define SW_RUN_PARAM_TX_FREQ_ARG0_CH2 0x2                // Use 2 channel
+#define SW_RUN_PARAM_TX_FREQ_ARG0_CH3 0x3                // Use 3 channel
+#define SW_RUN_PARAM_TX_FREQ_ARG0_CH4 0x4                // Use 4 channel
+#define SW_RUN_PARAM_TX_FREQ_ARG0_CH5 0x5                // Use 5 channel
 
 // Touch detection              
 #define SW_RUN_PARAM_TOUCH_ID 0x0097                            // Runtime Parameter ID
-#define SW_RUN_PARAM_TOUCH_ARG0_ENABLE 0x00000008               // Enable
-#define SW_RUN_PARAM_TOUCH_ARG0_DISABLE 0x00000000              // Disable
-#define SW_RUN_PARAM_TOUCH_ARG1_REQUIRED 0x00000008             // REQUIRED!
+#define SW_RUN_PARAM_TOUCH_ARG0_ENABLE 0x08               // Enable
+#define SW_RUN_PARAM_TOUCH_ARG0_DISABLE 0x00              // Disable
+#define SW_RUN_PARAM_TOUCH_ARG1_REQUIRED 0x08             // REQUIRED!
 
 // Approach detection              
 #define SW_RUN_PARAM_APPROACH_ID 0x0097                            // Runtime Parameter ID
-#define SW_RUN_PARAM_APPROACH_ARG0_ENABLE 0x00000001               // Enable
-#define SW_RUN_PARAM_APPROACH_ARG0_DISABLE 0x00000000              // Disable
-#define SW_RUN_PARAM_APPROACH_ARG1_REQUIRED 0x00000001             // REQUIRED!
+#define SW_RUN_PARAM_APPROACH_ARG0_ENABLE 0x01               // Enable
+#define SW_RUN_PARAM_APPROACH_ARG0_DISABLE 0x00              // Disable
+#define SW_RUN_PARAM_APPROACH_ARG1_REQUIRED 0x01             // REQUIRED!
 
 // Air wheel detection              
 #define SW_RUN_PARAM_AIR_WHEEL_ID 0x0090                            // Runtime Parameter ID
-#define SW_RUN_PARAM_AIR_WHEEL_ARG0_ENABLE 0x00000020               // Enable
-#define SW_RUN_PARAM_AIR_WHEEL_ARG0_DISABLE 0x00000000              // Disable
-#define SW_RUN_PARAM_AIR_WHEEL_ARG1_REQUIRED 0x00000020             // REQUIRED!
+#define SW_RUN_PARAM_AIR_WHEEL_ARG0_ENABLE 0x20               // Enable
+#define SW_RUN_PARAM_AIR_WHEEL_ARG0_DISABLE 0x00              // Disable
+#define SW_RUN_PARAM_AIR_WHEEL_ARG1_REQUIRED 0x20             // REQUIRED!
 
 // Gesture detection              
 /*
@@ -129,6 +129,7 @@ must be set
 #define SW_RUN_PARAM_DATA_OUT_ARG_RES13 0b0000000000000000              // RESERVED = 0
 #define SW_RUN_PARAM_DATA_OUT_ARG_RES14 0b0000000000000000              // RESERVED = 0
 #define SW_RUN_PARAM_DATA_OUT_ARG_RES15 0b0000000000000000              // RESERVED = 0
+#define SW_RUN_PARAM_DATA_OUT_ARG1_MASK 0b0001100000111111              // Prevents the reserved bits from being set
 
 // Data output lock mask
 /*
@@ -141,8 +142,6 @@ Arg1 acts as a bitmask so to change the flag in ARG0, the corresponding bit in A
 must be set
 */
 #define SW_RUN_PARAM_DATA_LOCK_ID 0x00A1                                 // Runtime Parameter ID
-#define SW_RUN_PARAM_DATA_LOCK_ARG_PADDING 0x000000                      // 3 byte padding - ARG0/1 need 4 bytes
-#define SW_RUN_PARAM_DATA_LOCK_ID 0x00A0                                 // Runtime Parameter ID
 #define SW_RUN_PARAM_DATA_LOCK_ARG_PADDING 0x000000                      // 3 byte padding - ARG0/1 need 4 bytes
 #define SW_RUN_PARAM_DATA_LOCK_ARG_DSP 0b0000000000000001                // DSP Status
 #define SW_RUN_PARAM_DATA_LOCK_ARG_GESTURE 0b0000000000000010            // Gesture Data
@@ -160,6 +159,7 @@ must be set
 #define SW_RUN_PARAM_DATA_LOCK_ARG_RES13 0b0000000000000000              // RESERVED = 0
 #define SW_RUN_PARAM_DATA_LOCK_ARG_RES14 0b0000000000000000              // RESERVED = 0
 #define SW_RUN_PARAM_DATA_LOCK_ARG_RES15 0b0000000000000000              // RESERVED = 0
+#define SW_RUN_PARAM_DATA_LOCK_ARG1_MASK 0b0001100000111111              // Prevents the reserved bits from being set
 
 // Data output request mask
 /*
@@ -189,6 +189,7 @@ must be set
 #define SW_RUN_PARAM_DATA_REQUEST_ARG_RES13 0b0000000000000000              // RESERVED = 0
 #define SW_RUN_PARAM_DATA_REQUEST_ARG_RES14 0b0000000000000000              // RESERVED = 0
 #define SW_RUN_PARAM_DATA_REQUEST_ARG_RES15 0b0000000000000000              // RESERVED = 0
+#define SW_RUN_PARAM_DATA_REQUEST_ARG1_MASK 0b0001100000111111              // Prevents the reserved bits from being set
 
 // Gesture in progress flag control
 /*
@@ -196,11 +197,42 @@ Determines whether the gesture in progress output is part of the sensor data out
 */
 
 #define SW_RUN_PARAM_GEST_PROG_ID 0x00A3                                    // Runtime Parameter ID
-#define SW_RUN_PARAM_GEST_PROG_ARG0_ENABLE 0x00000000                       // Enabled
-#define SW_RUN_PARAM_GEST_PROG_ARG0_DISABLE 0x00000001                      // Disabled
+#define SW_RUN_PARAM_GEST_PROG_ARG0_ENABLE 0x00000001                       // Enabled
+#define SW_RUN_PARAM_GEST_PROG_ARG0_DISABLE 0x00000000                      // Disabled
 #define SW_RUN_PARAM_GEST_PROG_ARG1 0x00000001                              // Required
 
+// Function prototypes
 Header create_set_runtime_header();
-RuntimeParameterPayload create_set_runtime_trigger_payload();
+RuntimeParameterPayload create_set_runtime_payload(uint16_t id, uint32_t arg0, uint32_t arg1);
+RuntimeParameterPayload trigger_force_recalibration();
+RuntimeParameterPayload trigger_enter_deep_sleep_1();
+RuntimeParameterPayload trigger_enter_deep_sleep_2();
+RuntimeParameterPayload persistent_rtps_for_afe();
+RuntimeParameterPayload persistent_rtps_for_dsp();
+RuntimeParameterPayload persistent_rtps_for_sys();
+RuntimeParameterPayload signal_matching_south(uint8_t value);
+RuntimeParameterPayload signal_matching_west(uint8_t value);
+RuntimeParameterPayload signal_matching_north(uint8_t value);
+RuntimeParameterPayload signal_matching_east(uint8_t value);
+RuntimeParameterPayload signal_matching_center(uint8_t value);
+RuntimeParameterPayload electrode_mapping_south(uint8_t channel);
+RuntimeParameterPayload electrode_mapping_west(uint8_t channel);
+RuntimeParameterPayload electrode_mapping_north(uint8_t channel);
+RuntimeParameterPayload electrode_mapping_east(uint8_t channel);
+RuntimeParameterPayload electrode_mapping_center(uint8_t channel);
+RuntimeParameterPayload transmit_freq_select_south(uint8_t numFrequencies);
+RuntimeParameterPayload enable_touch_detection();
+RuntimeParameterPayload disable_touch_detection();
+RuntimeParameterPayload enable_approach_detection();
+RuntimeParameterPayload disable_approach_detection();
+RuntimeParameterPayload enable_air_wheel_detection();
+RuntimeParameterPayload disable_air_wheel_detection();
+RuntimeParameterPayload set_gestures(uint8_t gestureMask);
+RuntimeParameterPayload set_calibration_operation_modes(uint8_t calibrationMask);
+RuntimeParameterPayload set_data_output_enable(uint16_t dataOutputMask);
+RuntimeParameterPayload set_data_output_lock(uint16_t dataLockMask);
+RuntimeParameterPayload set_data_output_request(uint16_t dataRequestMask);
+RuntimeParameterPayload enable_gesture_in_progress();
+RuntimeParameterPayload disable_gesture_in_progress();
 
 #endif

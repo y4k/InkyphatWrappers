@@ -13,8 +13,9 @@
 #define SW_ADDR_2 0x43
 
 // GPIO pins - Broadcom numbering scheme used
-#define SW_TRFR_PIN 27
+#define SW_XFR_PIN 27
 #define SW_RESET_PIN 17
+
 #define SW_SCL_PIN 3
 #define SW_SDA_PIN 2
 

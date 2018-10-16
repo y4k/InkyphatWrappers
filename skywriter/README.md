@@ -155,3 +155,7 @@ At start up, the chip sends the firmware version info message to the host to sho
 |0x80|FW Update Start|
 |0x81|FW Update Block|
 |0x82|FW Update Completed|
+
+## Notes
+
+* Whilst the MGC3130 chip does use I2C to communicate, it was found that the WiringPi library could not read buffers of sufficient size in one transaction. That is why it has been used to initialise the I2C interface but standard *read* and *write* calls are used as opposed to *wiringPiI2CReadReg8* etc.

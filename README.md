@@ -26,12 +26,12 @@ sudo adduser <username> spi
 // Initialises wiringPi and uses the BCM pin numbering scheme
 if(wiringPiSetupGpio() == -1)
 {
-    cout << "Failed to initialise WiringPi" << endl;
+    std::cout << "Failed to initialise WiringPi" << std::endl;
     return -1;
 }
 else
 {
-    cout << "WiringPi correctly initialised" << endl;
+    std::cout << "WiringPi correctly initialised" << std::endl;
 }
 ```
 
@@ -67,23 +67,23 @@ InkyPhat requires both WiringPi and the SPI interface to be initialised.
 // Initialises wiringPi and uses the BCM pin numbering scheme
 if(wiringPiSetupGpio() == -1)
 {
-    cout << "Failed to initialise WiringPi" << endl;
+    std::cout << "Failed to initialise WiringPi" << std::endl;
     return -1;
 }
 else
 {
-    cout << "WiringPi correctly initialised" << endl;
+    std::cout << "WiringPi correctly initialised" << std::endl;
 }
 
 // Setup spi
 if(wiringPiSPISetup(CS0_PIN, 488000) == -1)
 {
-    cout << "Could not initialise WiringPi SPI library" << endl;
+    std::cout << "Could not initialise WiringPi SPI library" << std::endl;
     return -1;
 }
 else
 {
-    cout << "WiringPi SPI library initialised" << endl;
+    std::cout << "WiringPi SPI library initialised" << std::endl;
 }
 
 InkyPhat& inky = InkyPhat::Instance(); // Get reference to the InkyPhat class

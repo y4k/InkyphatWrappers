@@ -1,6 +1,8 @@
 #ifndef SW_MSG_FW_VERSION_INFO_H
 #define SW_MSG_FW_VERSION_INFO_H
 
+#include "common.hpp"
+
 // FW_VERSION_INFO Message Definition
 
 // Header
