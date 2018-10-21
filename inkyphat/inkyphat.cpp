@@ -4,7 +4,7 @@
 #include <linux/types.h>
 #include <signal.h> // some kind of magic I guess
 #include <iostream>
-#include <unistd.h>  // usleep
+#include <unistd.h> // usleep
 #include <stdlib.h>
 
 #include "inkyphat.h"
@@ -30,7 +30,8 @@ InkyPhat::InkyPhat()
      */
 
     // ========================================
-    cout << endl << "Pin Setup" << endl;
+    cout << endl
+         << "Pin Setup" << endl;
     //GPIO.setup(command_pin, GPIO.OUT, initial=GPIO.LOW, pull_up_down=GPIO.PUD_OFF)
     cout << "   -> CommandPin:" << unsigned(command_pin) << endl;
     // Set the COMMAND_PIN as output
@@ -42,7 +43,6 @@ InkyPhat::InkyPhat()
     cout << "      InitialState:" << LOW << endl;
     digitalWrite(command_pin, LOW);
 
-
     //GPIO.setup(reset_pin, GPIO.OUT, initial=GPIO.HIGH, pull_up_down=GPIO.PUD_OFF)
     cout << "   -> ResetPin:" << unsigned(reset_pin) << endl;
     // Set the RESET_PIN as output
@@ -53,7 +53,7 @@ InkyPhat::InkyPhat()
     // Set the state to HIGH
     cout << "      InitialState:" << HIGH << endl;
     digitalWrite(reset_pin, HIGH);
-    
+
     //GPIO.setup(busy_pin, GPIO.IN, pull_up_down=GPIO.PUD_OFF)
     cout << "   -> BusyPin:" << unsigned(busy_pin) << endl;
     // Set the BUSY_PIN as input
@@ -62,7 +62,6 @@ InkyPhat::InkyPhat()
     // Set the pull-up-down resistor to off
     pullUpDnControl(reset_pin, PUD_OFF);
 
-    
     //GPIO.output(reset_pin, GPIO.LOW) - Set reset pin to low
     digitalWrite(reset_pin, LOW);
     //sleep for 0.1ms - time.sleep(0.1)
@@ -73,7 +72,7 @@ InkyPhat::InkyPhat()
     usleep(100);
 
     //if GPIO.input(busy_pin) == 1 : set_version(1)
-    if(digitalRead(busy_pin) == HIGH)
+    if (digitalRead(busy_pin) == HIGH)
     {
         cout << "InkyHat version:" << 1 << endl;
         //set_version(1);
@@ -81,7 +80,7 @@ InkyPhat::InkyPhat()
         palette.push_back(WHITE);
         palette.push_back(RED);
     }
-    else if(digitalRead(busy_pin) == LOW)
+    else if (digitalRead(busy_pin) == LOW)
     {
         cout << "InkyHat version:" << 2 << endl;
         // set_version(2);
@@ -133,15 +132,15 @@ int InkyPhat::_display_update(vector<uint8_t> buf_black, vector<uint8_t> buf_red
 
     // Border control
     _send_command(0x3c, 0x00);
-    if( border == 0b11000000)
+    if (border == 0b11000000)
     {
         _send_command(0x3c, 0x00);
     }
-    else if( border == 0b01000000)
+    else if (border == 0b01000000)
     {
         _send_command(0x3c, 0x33);
     }
-    else if( border == 0b10000000)
+    else if (border == 0b10000000)
     {
         _send_command(0x3c, 0xFF);
     }
@@ -192,15 +191,15 @@ int InkyPhat::_display_update(vector<uint8_t> buf_black, vector<uint8_t> buf_red
 
     _send_command(0x24, buf_black);
 
-    _send_command(0x44, xRamData); // Set RAM X address
-    _send_command(0x45, newYRamData); // Set RAM Y address
-    _send_command(0x4e, 0x00); // Set RAM X address counter
+    _send_command(0x44, xRamData);           // Set RAM X address
+    _send_command(0x45, newYRamData);        // Set RAM Y address
+    _send_command(0x4e, 0x00);               // Set RAM X address counter
     _send_command(0x4f, yRamAddressCounter); // Set RAM Y address counter
 
     _send_command(0x26, buf_red);
 
     _send_command(0x22, 0xc7); // Display update setting
-    _send_command(0x20); // Display update activate
+    _send_command(0x20);       // Display update activate
     usleep(50);
     _busy_wait();
 
@@ -229,19 +228,19 @@ int InkyPhat::update()
     vector<uint8_t> black_buffer;
 
     // For each row, create a single value
-    for(vector< vector<uint8_t> >::iterator col_it = buffer.begin(); col_it != buffer.end(); col_it++ )
+    for (vector<vector<uint8_t>>::iterator col_it = buffer.begin(); col_it != buffer.end(); col_it++)
     {
         int count = 0;
-        
+
         // Start with empty value
         uint8_t redValue = 0;
         uint8_t blackValue = 0;
-        
+
         for (vector<uint8_t>::iterator row_it = (*col_it).begin(); row_it != (*col_it).end(); row_it++)
         {
             uint8_t value = *row_it;
             // If the value equals RED, it's considered TRUE otherwise FALSE
-            if(value == RED)
+            if (value == RED)
             {
                 // If RED, add one and shift left
                 redValue <<= 1;
@@ -252,7 +251,7 @@ int InkyPhat::update()
                 // If not RED, just shift left
                 redValue <<= 1;
             }
-            if(value == BLACK)
+            if (value == BLACK)
             {
                 // If BLACK, just shift left
                 blackValue <<= 1;
@@ -264,7 +263,7 @@ int InkyPhat::update()
                 blackValue += 1;
             }
 
-            if(++count == 8)
+            if (++count == 8)
             {
                 // Push the bytes into respective vectors
                 red_buffer.push_back(redValue);
@@ -294,7 +293,7 @@ int InkyPhat::set_pixel(int row, int column, uint8_t value)
     // Lock to avoid to threads attempting to set_pixels
     lock_guard<mutex> lock(_lock);
 
-    if(row < 0 || row >= height || column < 0 || column >= width || value < 0 || value > 2)
+    if (row < 0 || row >= height || column < 0 || column >= width || value < 0 || value > 2)
     {
         return -1;
     }
@@ -306,7 +305,7 @@ string InkyPhat::print_current_buffer()
 {
     // Lock to avoid to threads attempting to update at once
     lock_guard<mutex> lock(_lock);
-    
+
     string output;
     output += "Current buffer values";
     output += "\n";
@@ -319,7 +318,7 @@ string InkyPhat::print_current_buffer()
     return output;
 }
 
-string print_buff(vector< uint8_t > buffer)
+string print_buff(vector<uint8_t> buffer)
 {
     string output;
     output += "[";
@@ -347,8 +346,8 @@ int InkyPhat::_busy_wait()
 {
     //Wait for the e-paper driver to be ready to receive commands/data.
     int wait_for = LOW;
-    
-    while( digitalRead(busy_pin) != wait_for )
+
+    while (digitalRead(busy_pin) != wait_for)
     {
         // Yes this is a tight loop that spins waiting for a pin to change value
     }
