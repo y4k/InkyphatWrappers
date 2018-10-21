@@ -1,21 +1,20 @@
-#include "skywriterConstants.hpp"
 #include "skywriter.hpp"
+#include "skywriterConstants.hpp"
 
-int main(void)
-{
-    // sets up the wiringPi library
-    if (wiringPiSetupGpio() < 0)
-    {
-        fprintf (stderr, "Unable to setup wiringPi: %s\n", strerror (errno));
-        return 1;
-    }
+int main(void) {
+  // sets up the wiringPi library
+  if (wiringPiSetupGpio() < 0) {
+    fprintf(stderr, "Unable to setup wiringPi: %s\n", strerror(errno));
+    return 1;
+  }
 
-    Skywriter &sw = Skywriter::Instance();
+  asio::io_context io;
+  asio::executor_work_guard<asio::io_contecxt::executor_type> guard(
+      io.get_executor());
 
-    while (1)
-    {
-        delay(100); // wait 100 millisecond
-    }
+  Skywriter &sw = new Skywriter(io);
 
-    return 0;
+  io.run();
+
+  return 0;
 }

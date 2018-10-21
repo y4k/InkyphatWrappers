@@ -1,52 +1,62 @@
+#include "message_parsing.hpp"
 #include "skywriterConstants.hpp"
 
-#include <iostream>
-#include <unistd.h>
 #include <errno.h>
+#include <unistd.h>
+#include <iostream>
 
 #include <asio.hpp>
 
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
 
-Header parse_header(char bytes[]);
-void parse_sensor_data_output(uint8_t msgSize, uint8_t sequence, uint8_t id, uint8_t *payload);
-void parse_system_status(uint8_t msgSize, uint8_t sequence, uint8_t id, uint8_t *payload);
-void parse_fw_info(uint8_t msgSize, uint8_t sequence, uint8_t id, uint8_t *payload);
-void print_header(uint8_t msgSize, uint8_t sequence, uint8_t id);
-int combine_bytes(int numBytes, uint8_t *bytes);
+void xfr_callback_falling(Skywriter& skywriter);
+void xfr_callback_rising(Skywriter& skywriter);
 
-class Skywriter
-{
-    public:
-        static Skywriter& Instance()
-        {
-            static Skywriter instance;
-            return instance;
-        }
-        Skywriter(Skywriter const &) = delete;
-        void operator=(Skywriter const &) = delete;
-        ~Skywriter();
+class BaseMessage {
+ public:
+ protected:
+  BaseMessage(uint8_t msgSize, uint8_t sequence, uint8_t id)
+      : _msgSize{msgSize}, uint8_t _sequence{sequence}, uint8_t _id{id} {}
+  uint8_t _msgSize;
+  uint8_t _sequence;
+  uint8_t _id
+};
 
-      private:
-        Skywriter();
+class SystemStatusMessage : BaseMessage {
+ public:
+  SystemStatusMessage(uint8_t msgSize, uint8_t sequence, uint8_t id, int msgId,
+                      int maxCmdSize, int errorCode)
+      : BaseMessage(msgSize, sequence, id),
+        _msgId{msgId},
+        _maxCmdSize{msgCmdSize},
+        _errorCode{errorCode} {}
 
-        static void xfr_callback_falling();
-        static void xfr_callback_rising();
+ private:
+  int _msgId;
+  int _maxCmdSize;
+  int _errorCode;
+};
 
-        asio::thread* _worker_thread;
-        asio::io_context _io;
-        asio::executor_work_guard<asio::io_context::executor_type> _guard;
+class Skywriter {
+ public:
+  Skywriter(asio::io_context& io);
+  Skywriter(Skywriter const&) = delete;
+  void operator=(Skywriter const&) = delete;
+  ~Skywriter();
 
-        void start_process();
-        void end_process();
+  asio::io_context& get_io_context();
+  void register_callback(SensorOutput output,
+                         const std::function<void()> callback);
 
-        void start_transfer();
-        void complete_transfer();
+ private:
+  int _i2cFileHandler;
+  asio::io_context& _io;
 
-        void read_once();
-
-        void reset();
-
-        int _i2cFileHandler;
+  void start_process();
+  void end_process();
+  void start_transfer();
+  void complete_transfer();
+  void read_once();
+  void reset();
 };
