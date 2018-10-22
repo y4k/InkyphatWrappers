@@ -12,9 +12,11 @@ called from the worker thread running the Asio IO Context.
 Cleanup is handle in the destructor including joining and deleting
 the worker thread.
  */
-class SkywriterSingleton {
- public:
-  Skywriter &Instance() {
+class SkywriterSingleton
+{
+public:
+  Skywriter &Instance()
+  {
     static SkywriterSingleton instance;
     return instance.GetSkywriter();
   }
@@ -22,12 +24,12 @@ class SkywriterSingleton {
   void operator=(SkywriterSingleton const &) = delete;
   ~SkywriterSingleton();
 
- private:
+private:
   SkywriterSingleton();
   asio::thread *_worker_thread;
   asio::io_context _io;
-  asio::executor_work_guard<asio::io_contecxt::executor_type> _guard;
+  asio::executor_work_guard<asio::io_context::executor_type> _guard;
   Skywriter _skywriter;
 
-  const Skywriter &GetSkywriter();
-}
+  Skywriter &GetSkywriter();
+};

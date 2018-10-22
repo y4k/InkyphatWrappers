@@ -1,7 +1,7 @@
 #include "skywriterConstants.hpp"
 #include <iostream>
 
-enum SensorOutput
+enum SensorOutputType
 {
     FLICK,
     TOUCH,
@@ -13,20 +13,21 @@ enum SensorOutput
 
 class BaseReceivedMessage
 {
-    public:
-    protected:
-      BaseReceivedMessage(uint8_t size, uint8_t sequence, uint8_t id);
-      uint8_t Size;
-      uint8_t Sequence;
-      uint8_t ID;
+  public:
+  protected:
+    BaseReceivedMessage(uint8_t size, uint8_t sequence, uint8_t id);
+    uint8_t Size;
+    uint8_t Sequence;
+    uint8_t ID;
 };
 
 class SensorOutput : BaseReceivedMessage
 {
-    public:
-     SensorOutput(uint8_t size, uint8_t sequence, uint8_t id);
-    protected:
-    private:
+  public:
+    SensorOutput(uint8_t size, uint8_t sequence, uint8_t id);
+
+  protected:
+  private:
 };
 
 Header parse_header(char bytes[]);
