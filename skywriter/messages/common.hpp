@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-class Header
+struct Header
 {
     uint8_t Size;
     uint8_t Sequence;

@@ -1,19 +1,24 @@
 #ifndef INTERRUPT_BASE_H
 #define INTERRUPT_BASE_H
 
+#include <map>
+#include <set>
 #include <mutex>
 
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
 
+#define MAX_PINS 27
+
 class InterruptBase
 {
 public:
-  virtual void ISR(int pin, int edge) = 0;
-
 protected:
+  virtual void ISR(int pin, int edge) = 0;
   InterruptBase();
-  static bool Register(int interrupt, InterruptBase *intThisPtr);
+  static bool Register(int pin, int edge, InterruptBase *interruptTarget);
+  static bool Unregister(InterruptBase *intThisPtr);
+  virtual ~InterruptBase();
 
 private:
   static std::mutex _lock;
