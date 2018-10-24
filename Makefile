@@ -19,12 +19,12 @@ LDCONFIG=ldconfig
 
 # Utilities
 UTILITIES_DIR=utilities
-UTILITIES_HEADERS=$(UTILITIES_DIR)/*hpp
+UTILITIES_HEADERS=$(UTILITIES_DIR)/*.hpp
 
 # Inkyphat
 INKY_DIR=inkyphat
 INKY_LIB_NAME=libinkyphat.so
-INKY_HEADERS=$(INKY_DIR)/*h
+INKY_HEADERS=$(INKY_DIR)/*.hpp
 
 # Blinkt
 BLINKT_DIR=blinkt
@@ -35,6 +35,8 @@ BLINKT_HEADERS=$(BLINKT_DIR)/*.hpp
 JOY_BONNET_DIR=joy_bonnet
 JOY_BONNET_LIB_NAME=libjoybonnet.so
 JOY_BONNET_HEADERS=$(JOY_BONNET_DIR)/*.hpp
+
+OBJECTS = $(SOURCES:.cpp=.o)
 
 .PHONY: install-all
 install-all: install-inkyphat install-blinkt install-joybonnet
