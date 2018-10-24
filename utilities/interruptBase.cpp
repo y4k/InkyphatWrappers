@@ -2,7 +2,6 @@
 
 std::mutex InterruptBase::_lock;
 
-
 std::map<int, std::set<InterruptBase *>> InterruptBase::_isrTable;
 
 InterruptBase::InterruptBase() {}

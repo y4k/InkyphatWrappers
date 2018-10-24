@@ -62,9 +62,6 @@ void Skywriter::register_callback(SensorOutputType sensor_output,
 
 void Skywriter::ISR(int pin, int edge)
 {
-#ifdef DEBUG
-  std::cout << "Interrupt received pin:" << pin << " and edge:" << edge << std::endl;
-#endif
   if (pin != SW_XFR_PIN)
   {
 #ifdef DEBUG
@@ -74,10 +71,13 @@ void Skywriter::ISR(int pin, int edge)
   }
   if (edge == INT_EDGE_FALLING)
   {
+    asio::post(_io, [this]() { start_process(); });
+  }
+  else if (edge == INT_EDGE_RISING)
+  {
 #ifdef DEBUG
-    std::cout << "Line pulled low by chip" << std::endl;
+    std::cout << "Line pulled high by host" << std::endl;
 #endif
-    asio::post(_io, [&]() { start_process(); });
   }
 }
 
