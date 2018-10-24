@@ -1,11 +1,11 @@
-#include <stdint.h>
+#inc ".hpp"stdint.h>
 #include <iostream>
 #include <string>
 #include <linux/types.h>
 #include <unistd.h>  // usleep
 #include <stdlib.h>
-#include "pixel.h"
-#include "blinkt.h"
+#include "pixel.hpp"
+#include "blinkt.hpp"
 
 using namespace std;
 

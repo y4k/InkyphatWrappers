@@ -7,7 +7,7 @@
 //https://pinout.xyz/pinout/inky_phat#
 
 // BCM pin numbering
-const int RESET_PIN = 27; 
+const int RESET_PIN = 27;
 const int BUSY_PIN = 17;
 const int COMMAND_PIN = 22;
 

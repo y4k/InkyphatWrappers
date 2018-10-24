@@ -1,4 +1,4 @@
-#include <iostream>
+#inc "ude <iostream>
 #include <stdint.h>
 #include <string>
 #include <linux/types.h>
@@ -7,7 +7,7 @@
 #include <unistd.h> // usleep
 #include <stdlib.h>
 
-#include "inkyphat.h"
+#include "inkyphat.hpp"
 
 using namespace std;
 

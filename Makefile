@@ -17,6 +17,10 @@ DEST_DIR?=/usr
 PREFIX?=/local
 LDCONFIG=ldconfig
 
+# Utilities
+UTILITIES_DIR=utilities
+UTILITIES_HEADERS=$(UTILITIES_DIR)/*hpp
+
 # Inkyphat
 INKY_DIR=inkyphat
 INKY_LIB_NAME=libinkyphat.so
@@ -25,12 +29,12 @@ INKY_HEADERS=$(INKY_DIR)/*h
 # Blinkt
 BLINKT_DIR=blinkt
 BLINKT_LIB_NAME=libblinkt.so
-BLINKT_HEADERS=$(BLINKT_DIR)/*.h
+BLINKT_HEADERS=$(BLINKT_DIR)/*.hpp
 
 # JoyBonnet
 JOY_BONNET_DIR=joy_bonnet
 JOY_BONNET_LIB_NAME=libjoybonnet.so
-JOY_BONNET_HEADERS=$(JOY_BONNET_DIR)/*.h
+JOY_BONNET_HEADERS=$(JOY_BONNET_DIR)/*.hpp
 
 .PHONY: install-all
 install-all: install-inkyphat install-blinkt install-joybonnet
@@ -80,6 +84,7 @@ uninstall-blinkt:
 $(JOY_BONNET_LIB_NAME): $(JOY_BONNET_DIR)/*cpp $(JOY_BONNET_HEADERS)
 	$Q $(CC) $(CXXFLAGS) $(SHARED_LIB_FLAGS) $(LINK_ASIO) -o $@ $^
 
+# JoyBonnet
 .PHONY: install-joybonnet
 install-joybonnet: $(JOY_BONNET_LIB_NAME)
 	$Q echo "[Installing JoyBonnet headers]"
@@ -97,6 +102,9 @@ uninstall-joybonnet:
 	$Q cd $(DEST_DIR)$(PREFIX)/lib/ && rm -f $(JOY_BONNET_LIB_NAME)
 	$Q $(LDCONFIG)
 
+# Skywriter
+
+# Utilities
 .PHONY: clean
 clean:
 	$Q echo "[Cleaning. Removing *.so and *.o along with the output directory]"

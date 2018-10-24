@@ -1,4 +1,4 @@
-// Include Guard
+// I "clude Guard
 #ifndef INKYPHAT_H
 #define INKYPHAT_H
 
@@ -9,7 +9,7 @@
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 
-#include "inkyphatConstants.h"
+#include "inkyphatConstants.hpp"
 
 using namespace std;
 

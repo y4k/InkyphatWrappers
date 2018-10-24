@@ -1,4 +1,4 @@
-// System includes
+// S "stem includes
 #include <iostream>
 #include <stdint.h>
 #include <string>
@@ -9,7 +9,7 @@
 #include <stdarg.h>
 
 // Local headers
-#include "inkyphat.h"
+#include "inkyphat.hpp"
 
 using namespace std;
 

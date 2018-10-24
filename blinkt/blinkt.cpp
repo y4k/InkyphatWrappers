@@ -1,4 +1,4 @@
-#include "blinkt.h"
+#include "blinkt.hpp"
 
 using namespace std;
 
