@@ -5,40 +5,40 @@ Pixel::Pixel()
   colour = DEFAULT_BRIGHTNESS;
 }
 
-Pixel::Pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br)  // Always move towards the uint32_t models and try to return those
+Pixel::Pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br) // Always move towards the uint32_t models and try to return those
 {
   Pixel();
-  setP(r, g, b, br);
+  set_pixel(r, g, b, br);
 }
 
 Pixel::Pixel(uint32_t colourInfo)
 {
   Pixel();
-  setP(colourInfo);
+  set_pixel(colourInfo);
 }
 
-void Pixel::setP(uint32_t colourInfo)
+void Pixel::set_pixel(uint32_t colourInfo)
 {
   colour = colourInfo;
 }
 
-void Pixel::setHexPixel(std::string hexValue, uint8_t brightness)
-{  // expects value of form ffffff
+void Pixel::set_pixel_hex(std::string hexValue, uint8_t brightness)
+{ // expects value of form ffffff
   uint32_t result;
   if (hexValue.length() == 6)
   {
     result = stoi(hexValue, NULL, 16);
   }
-  result <<=  8;
-  setP(result + brightness);
+  result <<= 8;
+  set_pixel(result + brightness);
 }
 
-uint32_t Pixel::getPixel()
+uint32_t Pixel::get_pixel()
 {
   return colour;
 }
 
-void Pixel::setP(uint8_t r, uint8_t g, uint8_t b, uint8_t br)
+void Pixel::set_pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br)
 {
   // stores entire pixel set in Pixel.colour
   uint32_t result = 0;
@@ -49,19 +49,19 @@ void Pixel::setP(uint8_t r, uint8_t g, uint8_t b, uint8_t br)
   colour = result;
 }
 
-void Pixel::setBrightness(uint8_t br)
+void Pixel::set_brightness(uint8_t br)
 {
-  uint32_t newValue = (getPixel() & 0xFFFFFF00) + br;
-  setP(newValue);
+  uint32_t newValue = (get_pixel() & 0xFFFFFF00) + br;
+  set_pixel(newValue);
 }
 
-uint8_t Pixel::getBrightness()
+uint8_t Pixel::get_brightness()
 {
-  return (getPixel() & 0b111);
+  return (get_pixel() & 0b111);
 }
 
-void Pixel::setColour(uint8_t r, uint8_t g, uint8_t b)
+void Pixel::set_color(uint8_t r, uint8_t g, uint8_t b)
 {
   // calls setP with default brightness or over-ride brightness
-  setP(r, g, b, getBrightness());
+  set_pixel(r, g, b, get_brightness());
 }

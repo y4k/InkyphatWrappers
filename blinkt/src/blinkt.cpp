@@ -1,7 +1,5 @@
 #include "blinkt.hpp"
 
-using namespace std;
-
 Blinkt::Blinkt()
 {
     for (int i = 0; i < 8; i++)
@@ -9,33 +7,41 @@ Blinkt::Blinkt()
         pVector.push_back(Pixel());
     }
 
-    cout << endl
-         << "Pin Setup" << endl;
+#ifdef DEBUG
+    std::cout << std::endl
+              << "Pin Setup" << std::endl;
 
     // Setup the MOSI pin
-    cout << "   -> MOSI pin:" << unsigned(_mosi_pin) << endl;
+    std::cout << "   -> MOSI pin:" << unsigned(_mosi_pin) << std::endl;
     // Set as an output pin
-    cout << "      Mode:" << OUTPUT << endl;
+    std::cout << "      Mode:" << OUTPUT << std::endl;
+#endif
     pinMode(_mosi_pin, OUTPUT);
     // Set the initial state to LOW
-    cout << "      InitialState:" << LOW << endl;
+#ifdef DEBUG
+    std::cout << "      InitialState:" << LOW << std::endl;
+#endif
     digitalWrite(_mosi_pin, LOW);
 
+#ifdef DEBUG
     // Setup the SCLK pin
-    cout << "   -> SCLK pin:" << unsigned(SCLK) << endl;
+    std::cout << "   -> SCLK pin:" << unsigned(SCLK) << endl;
     // Set as an output pin
-    cout << "      Mode:" << OUTPUT << endl;
+    std::cout << "      Mode:" << OUTPUT << std::endl;
+#endif
     pinMode(_sclk_pin, OUTPUT);
+#ifdef DEBUG
     // Set the initial state to LOW
-    cout << "      InitialState:" << LOW << endl;
+    std::cout << "      InitialState:" << LOW << std::endl;
+#endif
     digitalWrite(_sclk_pin, LOW);
 }
 
 Blinkt::~Blinkt() {}
 
-uint32_t Blinkt::getPixel(int p)
+uint32_t Blinkt::get_pixel(int p)
 {
-    return pVector[p].getPixel();
+    return pVector[p].get_pixel();
 }
 
 void Blinkt::fade(int millisecs)
@@ -50,13 +56,13 @@ void Blinkt::fade(int millisecs)
         //!! arbitrary j
         for (int j = 0; j < 8; j++)
         {
-            fadeBr = pVector[j].getBrightness();
+            fadeBr = pVector[j].get_brightness();
             if (fadeBr > 0)
             {
                 fadeBr -= 1;
             }
             minBr += fadeBr;
-            pVector[j].setBrightness(fadeBr);
+            pVector[j].set_brightness(fadeBr);
         }
 
         show();
@@ -76,7 +82,7 @@ void Blinkt::rise(int millisecs, int brightness)
     {
         for (int j = 0; j < 8; j++)
         {
-            pVector[j].setBrightness(i + 1);
+            pVector[j].set_brightness(i + 1);
         }
         show();
         usleep(uInterval);
@@ -89,15 +95,15 @@ void Blinkt::crossfade(Blinkt &otherParent, int steps)
     {
         for (int j = 0; j < NUM_LEDS; j++)
         {
-            uint8_t myRed = pVector[j].getPixel() >> 24; // should have getRed() as a method - someone should write that.  Me.
-            uint8_t myGreen = pVector[j].getPixel() >> 16;
-            uint8_t myBlue = pVector[j].getPixel() >> 8;
-            uint8_t myBright = pVector[j].getPixel() & 0b00000111;
+            uint8_t myRed = pVector[j].get_pixel() >> 24; // should have getRed() as a method - someone should write that.  Me.
+            uint8_t myGreen = pVector[j].get_pixel() >> 16;
+            uint8_t myBlue = pVector[j].get_pixel() >> 8;
+            uint8_t myBright = pVector[j].get_pixel() & 0b00000111;
 
-            uint8_t otherRed = otherParent.getPixel(j) >> 24;
-            uint8_t otherGreen = otherParent.getPixel(j) >> 16;
-            uint8_t otherBlue = otherParent.getPixel(j) >> 8;
-            uint8_t otherBright = otherParent.getPixel(j) & 0b00000111;
+            uint8_t otherRed = otherParent.get_pixel(j) >> 24;
+            uint8_t otherGreen = otherParent.get_pixel(j) >> 16;
+            uint8_t otherBlue = otherParent.get_pixel(j) >> 8;
+            uint8_t otherBright = otherParent.get_pixel(j) & 0b00000111;
 
             int sign;
             sign = myRed > otherRed ? -1 : 1;
@@ -116,54 +122,54 @@ void Blinkt::crossfade(Blinkt &otherParent, int steps)
                 myBright++;
             }
 
-            setP(myRed, myGreen, myBlue, myBright, j);
+            set_pixel(myRed, myGreen, myBlue, myBright, j);
         }
         show();
         usleep(1000000 / steps);
     }
 }
 
-void Blinkt::setP(uint32_t colourInfo, int x)
+void Blinkt::set_pixel(uint32_t colourInfo, int x)
 {
     Pixel temp = pVector[x];
-    temp.setP(colourInfo);
+    temp.set_pixel(colourInfo);
     pVector[x] = temp;
 }
 
-void Blinkt::setFullPixel(uint32_t colourInfo, int x)
+void Blinkt::set_full_pixel(uint32_t colourInfo, int x)
 {
     Pixel temp = pVector[x];
-    temp.setP(colourInfo);
+    temp.set_pixel(colourInfo);
     pVector[x] = temp;
 }
 
-void Blinkt::setP(uint8_t r, uint8_t g, uint8_t b, uint8_t br, int x)
+void Blinkt::set_pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br, int x)
 {
     Pixel temp = pVector[x];
-    temp.setP(r, g, b, br);
+    temp.set_pixel(r, g, b, br);
     pVector[x] = temp;
 }
 
 void Blinkt::show()
 {
-    writeByte(0);
-    writeByte(0);
-    writeByte(0);
-    writeByte(0); // ensure clear buffer
+    write_byte(0);
+    write_byte(0);
+    write_byte(0);
+    write_byte(0); // ensure clear buffer
 
     for (int n = 0; n < NUM_LEDS; n++)
     {
-        writeByte(APA_SOF | (pVector[n].getPixel() & 0b11111));
-        writeByte(pVector[n].getPixel() >> 8 & 0xFF);
-        writeByte(pVector[n].getPixel() >> 16 & 0xFF);
-        writeByte(pVector[n].getPixel() >> 24 & 0xFF);
+        write_byte(APA_SOF | (pVector[n].get_pixel() & 0b11111));
+        write_byte(pVector[n].get_pixel() >> 8 & 0xFF);
+        write_byte(pVector[n].get_pixel() >> 16 & 0xFF);
+        write_byte(pVector[n].get_pixel() >> 24 & 0xFF);
 
         // increment count
     }
-    flushBuffer();
+    flush_buffer();
 }
 
-void Blinkt::writeByte(uint8_t byte)
+void Blinkt::write_byte(uint8_t byte)
 {
     int n;
     for (n = 0; n < 8; n++)
@@ -177,20 +183,18 @@ void Blinkt::writeByte(uint8_t byte)
     }
 }
 
-void Blinkt::flushBuffer(int length)
+void Blinkt::flush_buffer(int length)
 {
-    /************************************************************************/ /**
-     ASA_SOF LED string does not need precise timing but the payback for that is having to pass in clock timings.
-
-     The documentation is spectacularly unhelpful in how to do this.  However, writing several blank bytes flushes the buffer that is held within the LED array/string.
-
-     This function flushes the buffer, and can be over-ridden in size to flush longer buffers for longer strings.
-
-     Default length is NUM_LEDS as defined in config.h
-  ********************************************************************** **/
-
+    /*
+    ASA_SOF LED string does not need precise timing but the payback for that
+    is having to pass in clock timings. The documentation is spectacularly
+    unhelpful in how to do this.  However, writing several blank bytes flushes
+    the buffer that is held within the LED array/string. This function flushes
+    the buffer, and can be over-ridden in size to flush longer buffers for
+    longer strings. Default length is NUM_LEDS
+  */
     for (int i = 0; i < (length / 2) + 1; i++) // initial guess at length of buffer needed
     {
-        writeByte(0);
+        write_byte(0);
     }
 }

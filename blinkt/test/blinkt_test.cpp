@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     setPixel(blinkt, green, 2);
     setPixel(blinkt, green + red, 3);
     setPixel(blinkt, red, 4);
-    setPixel(blinkt, myPixel.getPixel(), 5); // pre-defined Pixels can be used to set values
+    setPixel(blinkt, myPixel.get_pixel(), 5); // pre-defined Pixels can be used to set values
     setPixel(blinkt, white, 6);
     setPixel(blinkt, myPixel, 7); // pre-defined Pixels can be used to set values
 
