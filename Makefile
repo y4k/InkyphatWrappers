@@ -13,8 +13,8 @@ OUT_DIR=bin
 TEST_DIR=test
 
 #Install instructions
-DEST_DIR?=/usr
-PREFIX?=/local
+DEST_DIR=/usr
+PREFIX=/local
 LDCONFIG=ldconfig
 
 # Utilities
@@ -58,8 +58,8 @@ install-inkyphat: $(INKY_LIB_NAME)
 .PHONY: uninstall-inkyphat
 uninstall-inkyphat:
 	$Q echo "[Uninstalling Inkyphat]"
-	$Q cd $(DEST_DIR)$(PREFIX)/include/ && rm -f $(notdir $(INKY_HEADERS))
-	$Q cd $(DEST_DIR)$(PREFIX)/lib/ && rm -f $(INKY_LIB_NAME)
+	$Q cd $(DEST_DIR)$(PREFIX)/include/ && $(RM) $(notdir $(INKY_HEADERS))
+	$Q cd $(DEST_DIR)$(PREFIX)/lib/ && $(RM) $(INKY_LIB_NAME)
 	$Q $(LDCONFIG)
 
 # Blinkt
@@ -79,8 +79,8 @@ install-blinkt: $(BLINKT_LIB_NAME)
 .PHONY: uninstall-blinkt
 uninstall-blinkt:
 	$Q echo "[Uninstalling Blinkt]"
-	$Q cd $(DEST_DIR)$(PREFIX)/include/ && rm -f $(notdir $(BLINKT_HEADERS))
-	$Q cd $(DEST_DIR)$(PREFIX)/lib/ && rm -f $(BLINKT_LIB_NAME)
+	$Q cd $(DEST_DIR)$(PREFIX)/include/ && $(RM) $(notdir $(BLINKT_HEADERS))
+	$Q cd $(DEST_DIR)$(PREFIX)/lib/ && $(RM) $(BLINKT_LIB_NAME)
 	$Q $(LDCONFIG)
 
 $(JOY_BONNET_LIB_NAME): $(JOY_BONNET_DIR)/*cpp $(JOY_BONNET_HEADERS)
@@ -100,8 +100,8 @@ install-joybonnet: $(JOY_BONNET_LIB_NAME)
 .PHONY: uninstall-joybonnet
 uninstall-joybonnet:
 	$Q echo "[Uninstalling JoyBonnet]"
-	$Q cd $(DEST_DIR)$(PREFIX)/include/ && rm -f $(notdir $(JOY_BONNET_HEADERS))
-	$Q cd $(DEST_DIR)$(PREFIX)/lib/ && rm -f $(JOY_BONNET_LIB_NAME)
+	$Q cd $(DEST_DIR)$(PREFIX)/include/ && $(RM) $(notdir $(JOY_BONNET_HEADERS))
+	$Q cd $(DEST_DIR)$(PREFIX)/lib/ && $(RM) $(JOY_BONNET_LIB_NAME)
 	$Q $(LDCONFIG)
 
 # Skywriter
@@ -110,6 +110,6 @@ uninstall-joybonnet:
 .PHONY: clean
 clean:
 	$Q echo "[Cleaning. Removing *.so and *.o along with the output directory]"
-	$Q rm -fr $(OUT_DIR)
-	$Q rm -f *.so
-	$Q rm -f *.o
+	$Q $(RM) -r $(OUT_DIR)
+	$Q $(RM) *.so
+	$Q $(RM) *.o
