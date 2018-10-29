@@ -1,6 +1,6 @@
 #include "skywriter.hpp"
 
-Skywriter::Skywriter(asio::io_context &io) : _io{io}
+Skywriter::Skywriter(asio::io_context &io) : mIo{io}
 {
 
   // Set the reset pin to an output and give it the initial value of HIGH
@@ -38,7 +38,7 @@ Skywriter::~Skywriter()
 #endif
 }
 
-asio::io_context &Skywriter::get_io_context() { return _io; }
+asio::io_context &Skywriter::get_io_context() { return mIo; }
 
 void Skywriter::register_callback(SensorOutputType sensor_output,
                                   const std::function<void()> callback)
@@ -71,7 +71,7 @@ void Skywriter::ISR(int pin, int edge)
   }
   if (edge == INT_EDGE_FALLING)
   {
-    asio::post(_io, [this]() { start_process(); });
+    asio::post(mIo, [this]() { start_process(); });
   }
   else if (edge == INT_EDGE_RISING)
   {

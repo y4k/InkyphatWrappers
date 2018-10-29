@@ -33,7 +33,7 @@ void Pixel::set_pixel_hex(std::string hexValue, uint8_t brightness)
   set_pixel(result + brightness);
 }
 
-uint32_t Pixel::get_pixel()
+uint32_t Pixel::get_pixel_color()
 {
   return colour;
 }
@@ -51,17 +51,64 @@ void Pixel::set_pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br)
 
 void Pixel::set_brightness(uint8_t br)
 {
-  uint32_t newValue = (get_pixel() & 0xFFFFFF00) + br;
+  uint32_t newValue = (get_pixel_color() & 0xFFFFFF00) + br;
   set_pixel(newValue);
 }
 
 uint8_t Pixel::get_brightness()
 {
-  return (get_pixel() & 0b111);
+  return (get_pixel_color() & 0b111);
 }
 
 void Pixel::set_color(uint8_t r, uint8_t g, uint8_t b)
 {
   // calls setP with default brightness or over-ride brightness
   set_pixel(r, g, b, get_brightness());
+}
+
+void Blinkt::set_pixel(uint32_t colourInfo, int x)
+{
+  asio::post(mIo, [&]() {
+    Pixel &temp = pVector[x];
+    temp.set_pixel(colourInfo);
+  });
+}
+
+void Blinkt::set_full_pixel(uint32_t colourInfo, int x)
+{
+  asio::post(mIo, [&]() {
+    Pixel &temp = pVector[x];
+    temp.set_pixel(colourInfo);
+  });
+}
+
+void Blinkt::set_pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br, int x)
+{
+  asio::post(mIo, [&]() {
+    Pixel &temp = pVector[x];
+    temp.set_pixel(r, g, b, br);
+  });
+}
+
+Pixel &Blinkt::get_pixel(int p)
+{
+  asio::post(mIo, [this, p]() {
+    return pVector[p];
+  });
+}
+
+uint32_t Blinkt::get_pixel_color(int p)
+{
+  asio::post(mIo, [this, p]() {
+    return pVector[p].get_pixel_color();
+  });
+}
+
+Pixel &PixelArray::operator[](const int &key)
+{
+  if (key >= 0 && key < mPixelsVector.size())
+  {
+    return
+  }
+  throw std::out_of_range("Index out of range in PixelArray");
 }

@@ -55,7 +55,7 @@ protected:
 
 private:
   int _i2cFileHandler;
-  asio::io_context &_io;
+  asio::io_context &mIo;
 
   void start_process();
   void start_transfer();

@@ -27,7 +27,7 @@ public:
 private:
   SkywriterSingleton();
   asio::thread *_worker_thread;
-  asio::io_context _io;
+  asio::io_context mIo;
   asio::executor_work_guard<asio::io_context::executor_type> _guard;
   Skywriter _skywriter;
 

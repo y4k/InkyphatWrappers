@@ -17,9 +17,9 @@ SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 
-CFLAGS := -Wall -g
+CFLAGS := -Wall -g -DASIO_STANDALONE
 INC := -I include
-LIB := -lpthread -lwiringPi -DASIO_STANDALONE
+LIB := -lpthread -lwiringPi
 SHARED_COMPILE := -fPIC $(CFLAGS)
 SHARED_LIB := -shared $(LIB)
 
@@ -44,5 +44,5 @@ clean:
 .PHONY: tests
 tests: $(TEST_OUT)
 
-bin/%.out: $(TESTSRCDIR)/%.$(SRCEXT)
+bin/%.out: $(TESTSRCDIR)/%.$(SRCEXT) $(TARGET)
 	$(CC) $(CFLAGS) $^ $(INC) $(LIB) $(TARGET) -o $@
