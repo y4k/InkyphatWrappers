@@ -10,7 +10,7 @@
 #include "pixel.hpp"
 #include "blinkt.hpp"
 
-int main(int argc, char *argv[])
+int main(void)
 {
   std::cout << "Running Blinkt Test Script" << std::endl;
 
@@ -28,12 +28,14 @@ int main(int argc, char *argv[])
   std::cout << "Creating Blinkt Instance" << std::endl;
 
   asio::io_context io;
-  asio::executor_work_guard<asio::io_context::executor_type> guard(
-      io.get_executor());
+  // asio::executor_work_guard<asio::io_context::executor_type> guard(
+  //     io.get_executor());
 
   Blinkt blinkt(io);
 
-  Pixel myPixel = Pixel(255, 0, 0, 2);
+  PixelArray pixelList;
+
+  Pixel myPixel = Pixel(0, 255, 0, 1);
   uint32_t red = 0xFF000003; // hex codes fit in neatly, of course
   uint32_t green = 0x00FF003;
   uint32_t blue = 0x0000FF03;
@@ -41,79 +43,85 @@ int main(int argc, char *argv[])
 
   for (int i = 0; i < NUM_PIXELS; i++)
   {
-    set_pixel(blinkt, myPixel, i);
-  }
-  blinkt.show();
-
-  usleep(3000000);
-
-  set_pixel(blinkt, blue);            // default position is Pixel 0
-  set_pixel(blinkt, blue + green, 1); // Pixels can be set by number
-  set_pixel(blinkt, green, 2);
-  set_pixel(blinkt, green + red, 3);
-  set_pixel(blinkt, red, 4);
-  set_pixel(blinkt, myPixel.get_pixel_color(), 5); // pre-defined Pixels can be used to set values
-  set_pixel(blinkt, white, 6);
-  set_pixel(blinkt, myPixel, 7); // pre-defined Pixels can be used to set values
-
-  std::cout << "Displaying:" << std::endl
-            << "Blue|Blue+Green|Green|Green+Red|Red|White|White"
-            << std::endl;
-
-  blinkt.show();
-  usleep(2000000);
-
-  for (int i = 0; i < 8; i++)
-  {
-    set_pixel(blinkt, white, i);
+    pixelList.set_pixel(myPixel, i);
   }
 
-  std::cout << "Displaying:" << std::endl
-            << "All White"
-            << std::endl;
+  pixelList.set_pixel(Pixel(100, 0, 100, 2), 5);
 
-  blinkt.show();
-  usleep(1000000);
+  blinkt.show(pixelList);
 
-  for (int i = 0; i < 8; i++)
-  {
-    set_pixel(blinkt, 0, i);
-  }
+  asio::steady_timer timer(io, asio::chrono::seconds(5));
 
-  std::cout << "Displaying:" << std::endl
-            << "Nothing"
-            << std::endl;
+  timer.async_wait([&](const std::error_code &code) { blinkt.off(); });
 
-  blinkt.show();
-  usleep(1000000);
+  // set_pixel(blinkt, blue);            // default position is Pixel 0
+  // set_pixel(blinkt, blue + green, 1); // Pixels can be set by number
+  // set_pixel(blinkt, green, 2);
+  // set_pixel(blinkt, green + red, 3);
+  // set_pixel(blinkt, red, 4);
+  // set_pixel(blinkt, myPixel.get_pixel_color(), 5); // pre-defined Pixels can be used to set values
+  // set_pixel(blinkt, white, 6);
+  // set_pixel(blinkt, myPixel, 7); // pre-defined Pixels can be used to set values
 
-  for (int i = 0; i < 8; i++)
-  {
-    set_pixel(blinkt, red, i);
-  }
+  // std::cout << "Displaying:" << std::endl
+  //           << "Blue|Blue+Green|Green|Green+Red|Red|White|White"
+  //           << std::endl;
 
-  std::cout << "Displaying:" << std::endl
-            << "All Red with fade"
-            << std::endl;
+  // blinkt.show();
+  // usleep(2000000);
 
-  blinkt.show();
-  usleep(1000000);
-  blinkt.fade(2000);
+  // for (int i = 0; i < 8; i++)
+  // {
+  //   set_pixel(blinkt, white, i);
+  // }
 
-  for (int i = 0; i < 8; i++)
-  {
-    set_pixel(blinkt, 0, i);
-  }
+  // std::cout << "Displaying:" << std::endl
+  //           << "All White"
+  //           << std::endl;
 
-  std::cout << "Displaying:" << std::endl
-            << "Nothing"
-            << std::endl;
+  // blinkt.show();
+  // usleep(1000000);
 
-  blinkt.show();
-  usleep(1000000);
+  // for (int i = 0; i < 8; i++)
+  // {
+  //   set_pixel(blinkt, 0, i);
+  // }
 
-  std::cout << "End" << std::endl;
+  // std::cout << "Displaying:" << std::endl
+  //           << "Nothing"
+  //           << std::endl;
+
+  // blinkt.show();
+  // usleep(1000000);
+
+  // for (int i = 0; i < 8; i++)
+  // {
+  //   set_pixel(blinkt, red, i);
+  // }
+
+  // std::cout << "Displaying:" << std::endl
+  //           << "All Red with fade"
+  //           << std::endl;
+
+  // blinkt.show();
+  // usleep(1000000);
+  // blinkt.fade(2000);
+
+  // for (int i = 0; i < 8; i++)
+  // {
+  //   set_pixel(blinkt, 0, i);
+  // }
+
+  // std::cout << "Displaying:" << std::endl
+  //           << "Nothing"
+  //           << std::endl;
+
+  // blinkt.show();
+  // usleep(1000000);
+
+  // std::cout << "End" << std::endl;
 
   io.run();
+
   return 0;
 }

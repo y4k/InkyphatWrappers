@@ -2,7 +2,7 @@
 
 Pixel::Pixel()
 {
-  colour = DEFAULT_BRIGHTNESS;
+  mColor = DEFAULT_BRIGHTNESS;
 }
 
 Pixel::Pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br) // Always move towards the uint32_t models and try to return those
@@ -19,11 +19,12 @@ Pixel::Pixel(uint32_t colourInfo)
 
 void Pixel::set_pixel(uint32_t colourInfo)
 {
-  colour = colourInfo;
+  mColor = colourInfo;
 }
 
 void Pixel::set_pixel_hex(std::string hexValue, uint8_t brightness)
-{ // expects value of form ffffff
+{
+  // expects value of form ffffff
   uint32_t result;
   if (hexValue.length() == 6)
   {
@@ -33,9 +34,9 @@ void Pixel::set_pixel_hex(std::string hexValue, uint8_t brightness)
   set_pixel(result + brightness);
 }
 
-uint32_t Pixel::get_pixel_color()
+uint32_t Pixel::get_pixel_color() const
 {
-  return colour;
+  return mColor;
 }
 
 void Pixel::set_pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br)
@@ -46,7 +47,7 @@ void Pixel::set_pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br)
   result |= ((uint32_t)r << 24);
   result |= ((uint32_t)g << 16);
   result |= ((uint16_t)b << 8);
-  colour = result;
+  mColor = result;
 }
 
 void Pixel::set_brightness(uint8_t br)
@@ -66,49 +67,64 @@ void Pixel::set_color(uint8_t r, uint8_t g, uint8_t b)
   set_pixel(r, g, b, get_brightness());
 }
 
-void Blinkt::set_pixel(uint32_t colourInfo, int x)
+// PixelArray
+PixelArray::PixelArray(int numPixels) : mNumPixels{numPixels}
 {
-  asio::post(mIo, [&]() {
-    Pixel &temp = pVector[x];
-    temp.set_pixel(colourInfo);
-  });
-}
-
-void Blinkt::set_full_pixel(uint32_t colourInfo, int x)
-{
-  asio::post(mIo, [&]() {
-    Pixel &temp = pVector[x];
-    temp.set_pixel(colourInfo);
-  });
-}
-
-void Blinkt::set_pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br, int x)
-{
-  asio::post(mIo, [&]() {
-    Pixel &temp = pVector[x];
-    temp.set_pixel(r, g, b, br);
-  });
-}
-
-Pixel &Blinkt::get_pixel(int p)
-{
-  asio::post(mIo, [this, p]() {
-    return pVector[p];
-  });
-}
-
-uint32_t Blinkt::get_pixel_color(int p)
-{
-  asio::post(mIo, [this, p]() {
-    return pVector[p].get_pixel_color();
-  });
-}
-
-Pixel &PixelArray::operator[](const int &key)
-{
-  if (key >= 0 && key < mPixelsVector.size())
+  for (int i = 0; i < numPixels; i++)
   {
-    return
+    mPixelsVector.push_back(Pixel());
+  }
+}
+PixelArray::PixelArray(PixelArray const &pixelArray) : mNumPixels{pixelArray.mNumPixels}
+{
+  for (int n = 0; n < mNumPixels; n++)
+  {
+    Pixel p(pixelArray[n]);
+    mPixelsVector.push_back(p);
+  }
+}
+
+void PixelArray::set_pixel(uint32_t colourInfo, int x)
+{
+  Pixel &temp = mPixelsVector[x];
+  temp.set_pixel(colourInfo);
+}
+
+void PixelArray::set_pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br, int x)
+{
+  Pixel &temp = mPixelsVector[x];
+  temp.set_pixel(r, g, b, br);
+}
+
+void PixelArray::set_pixel(Pixel const pixel, int x)
+{
+  mPixelsVector[x] = pixel;
+}
+
+Pixel &PixelArray::get_pixel(int p)
+{
+  return mPixelsVector[p];
+}
+
+uint32_t PixelArray::get_pixel_color(int p)
+{
+  return mPixelsVector[p].get_pixel_color();
+}
+
+Pixel const &PixelArray::operator[](const int &index) const
+{
+  if (index >= 0 && index < mPixelsVector.size())
+  {
+    return mPixelsVector[index];
+  }
+  throw std::out_of_range("Index out of range in PixelArray");
+}
+
+Pixel &PixelArray::operator[](const int &index)
+{
+  if (index >= 0 && index < mPixelsVector.size())
+  {
+    return mPixelsVector[index];
   }
   throw std::out_of_range("Index out of range in PixelArray");
 }

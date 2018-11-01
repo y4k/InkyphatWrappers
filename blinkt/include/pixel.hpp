@@ -15,11 +15,12 @@ public:
   Pixel();
   Pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br = DEFAULT_BRIGHTNESS);
   Pixel(uint32_t colourInfo);
-  uint32_t colour;
+
   void set_pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br);
   void set_pixel(uint32_t colourInfo);
   void set_pixel_hex(std::string hexValue, uint8_t brightness = 3);
-  uint32_t get_pixel_color(); /// returns Pixel.colour
+  // uint32_t get_pixel_color();
+  uint32_t get_pixel_color() const;
 
   void set_brightness(uint8_t br);
   uint8_t get_brightness();
@@ -27,6 +28,7 @@ public:
   void set_color(uint8_t r, uint8_t g, uint8_t b); // calls set_full_pixel with current brightness
 
 private:
+  uint32_t mColor;
   uint8_t brightness;
 };
 
@@ -34,17 +36,17 @@ class PixelArray
 {
 public:
   PixelArray(int numPixels = NUM_PIXELS);
-  Pixel &get_pixel(int p);
-  uint32_t get_pixel_color(int p);
+  PixelArray(PixelArray const &pixelArray);
 
+  void set_pixel(Pixel pixel, int x = 0);
   void set_pixel(uint32_t pixel, int x = 0);
   void set_pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br, int x = 0);
-  void set_full_pixel(uint32_t pixel, int x);
 
   Pixel &get_pixel(int p);
   uint32_t get_pixel_color(int p);
 
-  Pixel &operator[](const int &key);
+  Pixel const &operator[](const int &index) const;
+  Pixel &operator[](const int &index);
 
 private:
   int mNumPixels;

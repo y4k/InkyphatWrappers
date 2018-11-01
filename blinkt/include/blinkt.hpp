@@ -21,7 +21,7 @@ const int APA_SOF = 0b11100000;
 class Blinkt
 {
 public:
-  Blinkt(asio::io_context &io, int numPixels = NUM_PIXELS);
+  Blinkt(asio::io_context &io);
   Blinkt(Blinkt const &) = delete;
   void operator=(Blinkt const &) = delete;
   ~Blinkt(void);
@@ -30,13 +30,12 @@ public:
 
   void show(PixelArray array);
   void off();
-  void fade(PixelArray array, int millisecs = 500);
-  void rise(PixelArray array, int millisecs = 500);
-  void crossfade(PixelArray fromArray, PixelArray toArray, int steps);
-  void crossfade(PixelArray toArray, int steps);
+  // void fade(PixelArray array, int millisecs = 500);
+  // void rise(PixelArray array, int millisecs = 500);
+  // void crossfade(PixelArray fromArray, PixelArray toArray, int steps);
+  // void crossfade(PixelArray toArray, int steps);
 
 private:
-  int mNumPixels;
   asio::io_context &mIo;
 
   uint8_t mMosiPin = MOSI;
