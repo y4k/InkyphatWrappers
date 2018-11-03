@@ -7,6 +7,7 @@ DEBUG := -O2 -DDEBUG
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 OUTNAME := $(notdir $(patsubst %/,%,$(dir $(MKFILE_PATH))))
 
+EXEDIR := bin
 SRCDIR := src
 BUILDDIR := build
 TESTSRCDIR := test
@@ -24,7 +25,7 @@ SHARED_COMPILE := -fPIC $(CFLAGS)
 SHARED_LIB := -shared $(LIB)
 
 TESTSOURCES := $(shell find $(TESTSRCDIR) -type f -name *.$(SRCEXT))
-TEST_OUT := $(patsubst $(TESTSRCDIR)/%,bin/%,$(TESTSOURCES:.$(SRCEXT)=.out))
+TEST_OUT := $(patsubst $(TESTSRCDIR)/%,$(EXEDIR)/%,$(TESTSOURCES:.$(SRCEXT)=.out))
 
 $(TARGET) : $(OBJECTS)
 	$Q echo "Building and linking $(OUTNAME)..."
@@ -40,9 +41,10 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 clean:
 	$Q echo " Cleaning $(OUTNAME)..."
 	$Q echo " $(RM) -r $(BUILDDIR) $(TARGET)";$(RM) -r $(BUILDDIR) $(TARGET)
+	$Q echo " $(RM) $(EXEDIR)/*";$(RM) $(EXEDIR)/*
 
 .PHONY: tests
 tests: $(TEST_OUT)
 
-bin/%.out: $(TESTSRCDIR)/%.$(SRCEXT) $(TARGET)
+$(EXEDIR)/%.out: $(TESTSRCDIR)/%.$(SRCEXT) $(TARGET)
 	$(CC) $(CFLAGS) $^ $(INC) $(LIB) $(TARGET) -o $@

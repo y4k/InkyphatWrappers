@@ -34,10 +34,15 @@ int main(void)
 
   PixelArray pixels(NUM_PIXELS);
 
-  for (int i = 0; i < NUM_PIXELS; i++)
-  {
-    pixels[i].set_pixel(255, 0, 0, DEFAULT_BRIGHTNESS);
-  }
+  pixels[0].set_full_color(255, 0, 0, 0);  // Red
+  pixels[1].set_full_color(0, 255, 0, 2);  // Green
+  pixels[2].set_full_color(0, 0, 255, 4);  // Blue
+  pixels[3].set_full_color(255, 0, 0, 6);  // Red
+  pixels[4].set_full_color(0, 255, 0, 8);  // Green
+  pixels[5].set_full_color(0, 0, 255, 10); // Blue
+  pixels[6].set_full_color(255, 0, 0, 12); // Red
+  pixels[7].set_full_color(0, 255, 0, 14); // Green
+
   blinkt.show(pixels);
 
   asio::steady_timer timer(io, asio::chrono::seconds(5));

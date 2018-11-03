@@ -1,70 +1,74 @@
 #include "pixel.hpp"
 
-Pixel::Pixel()
+Pixel::Pixel() : Pixel(0, 0, 0, 0)
 {
-  mColor = DEFAULT_BRIGHTNESS;
 }
 
-Pixel::Pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br) // Always move towards the uint32_t models and try to return those
+Pixel::Pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br)
+    : mRed{r}, mGreen{g}, mBlue{b}, mBrightness{br}
 {
-  Pixel();
-  set_pixel(r, g, b, br);
 }
 
-Pixel::Pixel(uint32_t colourInfo)
+Pixel::Pixel(Pixel const &pixel)
+    : Pixel(
+          pixel.get_red(),
+          pixel.get_green(),
+          pixel.get_blue(),
+          pixel.get_brightness())
 {
-  Pixel();
-  set_pixel(colourInfo);
-}
-
-void Pixel::set_pixel(uint32_t colourInfo)
-{
-  mColor = colourInfo;
-}
-
-void Pixel::set_pixel_hex(std::string hexValue, uint8_t brightness)
-{
-  // expects value of form ffffff
-  uint32_t result;
-  if (hexValue.length() == 6)
-  {
-    result = stoi(hexValue, NULL, 16);
-  }
-  result <<= 8;
-  set_pixel(result + brightness);
-}
-
-uint32_t Pixel::get_pixel_color() const
-{
-  return mColor;
-}
-
-void Pixel::set_pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br)
-{
-  // stores entire pixel set in Pixel.colour
-  uint32_t result = 0;
-  result = (br & 0b111);
-  result |= ((uint32_t)r << 24);
-  result |= ((uint32_t)g << 16);
-  result |= ((uint16_t)b << 8);
-  mColor = result;
-}
-
-void Pixel::set_brightness(uint8_t br)
-{
-  uint32_t newValue = (get_pixel_color() & 0xFFFFFF00) + br;
-  set_pixel(newValue);
-}
-
-uint8_t Pixel::get_brightness()
-{
-  return (get_pixel_color() & 0b111);
 }
 
 void Pixel::set_color(uint8_t r, uint8_t g, uint8_t b)
 {
-  // calls setP with default brightness or over-ride brightness
-  set_pixel(r, g, b, get_brightness());
+  set_full_color(r, g, b, get_brightness());
+}
+
+void Pixel::set_full_color(uint8_t r, uint8_t g, uint8_t b, uint8_t br)
+{
+  mRed = r;
+  mGreen = g;
+  mBlue = b;
+  mBrightness = br;
+}
+
+void Pixel::set_red(uint8_t r)
+{
+  mRed = r;
+}
+
+void Pixel::set_green(uint8_t g)
+{
+  mGreen = g;
+}
+
+void Pixel::set_blue(uint8_t b)
+{
+  mBlue = b;
+}
+
+void Pixel::set_brightness(uint8_t br)
+{
+  mBrightness = br;
+}
+
+uint8_t const Pixel::get_red() const
+{
+  return mRed;
+}
+
+uint8_t const Pixel::get_green() const
+{
+  return mGreen;
+}
+
+uint8_t const Pixel::get_blue() const
+{
+  return mBlue;
+}
+
+uint8_t const Pixel::get_brightness() const
+{
+  return mBrightness;
 }
 
 // PixelArray
@@ -75,6 +79,12 @@ PixelArray::PixelArray(int numPixels) : mNumPixels{numPixels}
     mPixelsVector.push_back(Pixel());
   }
 }
+
+PixelArray::PixelArray(Pixel const &pixel, int numPixels)
+    : mNumPixels{numPixels}, mPixelsVector{mNumPixels, pixel}
+{
+}
+
 PixelArray::PixelArray(PixelArray const &pixelArray) : mNumPixels{pixelArray.mNumPixels}
 {
   for (int n = 0; n < mNumPixels; n++)
@@ -84,16 +94,9 @@ PixelArray::PixelArray(PixelArray const &pixelArray) : mNumPixels{pixelArray.mNu
   }
 }
 
-void PixelArray::set_pixel(uint32_t colourInfo, int x)
+int const PixelArray::size() const
 {
-  Pixel &temp = mPixelsVector[x];
-  temp.set_pixel(colourInfo);
-}
-
-void PixelArray::set_pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br, int x)
-{
-  Pixel &temp = mPixelsVector[x];
-  temp.set_pixel(r, g, b, br);
+  return mNumPixels;
 }
 
 void PixelArray::set_pixel(Pixel const pixel, int x)
@@ -101,14 +104,45 @@ void PixelArray::set_pixel(Pixel const pixel, int x)
   mPixelsVector[x] = pixel;
 }
 
+void PixelArray::set_pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t br, int x)
+{
+  Pixel &temp = mPixelsVector[x];
+  temp.set_full_color(r, g, b, br);
+}
+
+void PixelArray::set_pixel(uint8_t r, uint8_t g, uint8_t b, int x)
+{
+  Pixel &temp = mPixelsVector[x];
+  temp.set_color(r, g, b);
+}
+
+void PixelArray::set_pixel_red(uint8_t r, int x)
+{
+  Pixel &temp = mPixelsVector[x];
+  temp.set_red(r);
+}
+
+void PixelArray::set_pixel_green(uint8_t g, int x)
+{
+  Pixel &temp = mPixelsVector[x];
+  temp.set_green(g);
+}
+
+void PixelArray::set_pixel_blue(uint8_t b, int x)
+{
+  Pixel &temp = mPixelsVector[x];
+  temp.set_blue(b);
+}
+
+void PixelArray::set_pixel_brightness(uint8_t br, int x)
+{
+  Pixel &temp = mPixelsVector[x];
+  temp.set_brightness(br);
+}
+
 Pixel &PixelArray::get_pixel(int p)
 {
   return mPixelsVector[p];
-}
-
-uint32_t PixelArray::get_pixel_color(int p)
-{
-  return mPixelsVector[p].get_pixel_color();
 }
 
 Pixel const &PixelArray::operator[](const int &index) const

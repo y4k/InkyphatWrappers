@@ -20,7 +20,7 @@ Blinkt::Blinkt(asio::io_context &io) : mIo{io}
 
 #ifdef DEBUG
   // Setup the SCLK pin
-  std::cout << "   -> SCLK pin:" << unsigned(SCLK) << endl;
+  std::cout << "   -> SCLK pin:" << unsigned(SCLK) << std::endl;
   // Set as an output pin
   std::cout << "      Mode:" << OUTPUT << std::endl;
 #endif
@@ -36,23 +36,36 @@ Blinkt::~Blinkt() {}
 
 asio::io_context &Blinkt::get_io_context() { return mIo; }
 
+void Blinkt::update(PixelArray array)
+{
+  // Start of frame
+  write_byte(0b00000000);
+  write_byte(0b00000000);
+  write_byte(0b00000000);
+  write_byte(0b00000000);
+
+  // LED frames - one per LED
+  for (int n = 0; n < array.size(); n++)
+  {
+    Pixel const &pixel = array[n];
+    write_byte(APA_SOF | pixel.get_brightness());
+    write_byte(pixel.get_blue());
+    write_byte(pixel.get_green());
+    write_byte(pixel.get_red());
+  }
+
+  // End of frame
+  write_byte(0b11111111);
+  write_byte(0b11111111);
+  write_byte(0b11111111);
+  write_byte(0b11111111);
+
+  // flush_buffer(NUM_PIXELS);
+}
+
 void Blinkt::show(PixelArray array)
 {
-  asio::post(mIo, [=]() {
-    write_byte(0);
-    write_byte(0);
-    write_byte(0);
-    write_byte(0); // ensure clear buffer
-
-    for (int n = 0; n < NUM_PIXELS; n++)
-    {
-      write_byte(APA_SOF | (array[n].get_pixel_color() & 0b11111));
-      write_byte(array[n].get_pixel_color() >> 8 & 0xFF);
-      write_byte(array[n].get_pixel_color() >> 16 & 0xFF);
-      write_byte(array[n].get_pixel_color() >> 24 & 0xFF);
-    }
-    flush_buffer(NUM_PIXELS);
-  });
+  asio::post(mIo, [=]() { update(array); });
 }
 
 void Blinkt::off()
@@ -61,36 +74,35 @@ void Blinkt::off()
   Blinkt::show(pixels);
 }
 
-// void Blinkt::fade(PixelArray pixelArray, int millisecs)
-// {
-//   //!! check brightness of each pixel
-//   int uInterval = (millisecs)*1000;
-//   uint8_t fadeBr;
-//   uint8_t minBr;
+void Blinkt::fade(PixelArray array, asio::chrono::milliseconds timeout)
+{
+  // Minimum 10ms intervals
+  int intervals = timeout / asio::chrono::milliseconds(10);
 
-//   for (int i = 0; i < 7; i++)
-//   {
-//     //!! arbitrary j
-//     for (int j = 0; j < 8; j++)
-//     {
-//       fadeBr = pixelArray[j].get_brightness();
-//       if (fadeBr > 0)
-//       {
-//         fadeBr -= 1;
-//       }
-//       minBr += fadeBr;
-//       pixelArray[j].set_brightness(fadeBr);
-//     }
+  if (intervals < 1)
+  {
+    intervals = 1;
+  }
 
-//     show(pixelArray);
-//     usleep(uInterval);
-//     if (minBr == 0)
-//     {
-//       break;
-//     }
-//     minBr = 0;
-//   }
-// }
+  uint8_t fadeBr;
+  uint8_t minBr;
+
+  for (int i = 0; i < intervals; i++)
+  {
+    for (int j = 0; j < array.size(); j++)
+    {
+      fadeBr = array[j].get_brightness();
+      if (fadeBr > 0)
+      {
+        fadeBr -= 1;
+      }
+      minBr += fadeBr;
+      array[j].set_brightness(fadeBr);
+    }
+
+    update(array);
+  }
+}
 
 // void Blinkt::rise(PixelArray array, int millisecs)
 // {
@@ -159,21 +171,5 @@ void Blinkt::write_byte(uint8_t byte)
     digitalWrite(mMosiPin, (byte & (1 << (7 - n))) > 0);
     digitalWrite(mSclkPin, HIGH);
     digitalWrite(mSclkPin, LOW);
-  }
-}
-
-void Blinkt::flush_buffer(int length)
-{
-  /*
-    ASA_SOF LED string does not need precise timing but the payback for that
-    is having to pass in clock timings. The documentation is spectacularly
-    unhelpful in how to do this.  However, writing several blank bytes flushes
-    the buffer that is held within the LED array/string. This function flushes
-    the buffer, and can be over-ridden in size to flush longer buffers for
-    longer strings. Default length is NUM_PIXELS
-  */
-  for (int i = 0; i < (length / 2) + 1; i++) // initial guess at length of buffer needed
-  {
-    write_byte(0);
   }
 }

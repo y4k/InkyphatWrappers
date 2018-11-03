@@ -30,7 +30,7 @@ public:
 
   void show(PixelArray array);
   void off();
-  // void fade(PixelArray array, int millisecs = 500);
+  void fade(PixelArray array, asio::chrono::milliseconds timeout = std::chrono::milliseconds(500));
   // void rise(PixelArray array, int millisecs = 500);
   // void crossfade(PixelArray fromArray, PixelArray toArray, int steps);
   // void crossfade(PixelArray toArray, int steps);
@@ -39,10 +39,11 @@ private:
   asio::io_context &mIo;
 
   uint8_t mMosiPin = MOSI;
+
   uint8_t mSclkPin = SCLK;
 
+  void update(PixelArray array);
   void write_byte(uint8_t byte);
-  void flush_buffer(int length = NUM_PIXELS);
 };
 
 #endif

@@ -10,6 +10,8 @@
 #include "pixel.hpp"
 #include "blinkt.hpp"
 
+void func(asio::steady_timer &timer, Blinkt &blinkt, PixelArray &pixels, const std::error_code &code);
+
 int main(void)
 {
   std::cout << "Running Blinkt Test Script" << std::endl;
@@ -35,24 +37,25 @@ int main(void)
 
   PixelArray pixelList;
 
-  Pixel myPixel = Pixel(0, 255, 0, 1);
-  uint32_t red = 0xFF000003; // hex codes fit in neatly, of course
-  uint32_t green = 0x00FF003;
-  uint32_t blue = 0x0000FF03;
-  uint32_t white = 0b11111111111111111111111100000011; // Last Octet takes APA framing and brightness
+  Pixel myPixel = Pixel(0, 255, 0, 0b1);
+  // uint32_t red = 0xFF000003; // hex codes fit in neatly, of course
+  // uint32_t green = 0x00FF003;
+  // uint32_t blue = 0x0000FF03;
+  // uint32_t white = 0b11111111111111111111111100000011; // Last Octet takes APA framing and brightness
 
   for (int i = 0; i < NUM_PIXELS; i++)
   {
     pixelList.set_pixel(myPixel, i);
   }
-
-  pixelList.set_pixel(Pixel(100, 0, 100, 2), 5);
+  pixelList.set_pixel(Pixel(100, 0, 100, 0b1), 5);
 
   blinkt.show(pixelList);
 
-  asio::steady_timer timer(io, asio::chrono::seconds(5));
+  asio::steady_timer timer(io, asio::chrono::seconds(3));
 
-  timer.async_wait([&](const std::error_code &code) { blinkt.off(); });
+  timer.async_wait([&](const std::error_code &code) {
+    func(timer, blinkt, pixelList, code);
+  });
 
   // set_pixel(blinkt, blue);            // default position is Pixel 0
   // set_pixel(blinkt, blue + green, 1); // Pixels can be set by number
@@ -124,4 +127,18 @@ int main(void)
   io.run();
 
   return 0;
+}
+
+void func(asio::steady_timer &timer, Blinkt &blinkt, PixelArray &pixels, const std::error_code &code)
+{
+  for (int i = 0; i < pixels.size(); i++)
+  {
+    pixels.set_pixel_brightness(pixels[i].get_brightness() + 1);
+  }
+  blinkt.show(pixels);
+  timer.expires_after(asio::chrono::seconds(3));
+
+  timer.async_wait([&](const std::error_code &code) {
+    func(timer, blinkt, pixels, code);
+  });
 }
