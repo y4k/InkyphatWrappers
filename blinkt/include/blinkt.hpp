@@ -26,7 +26,7 @@ public:
   void operator=(Blinkt const &) = delete;
   ~Blinkt(void);
 
-  asio::io_context &get_io_context();
+  asio::io_context &get_io_context() const;
 
   void show(PixelArray array);
   void off();
@@ -39,7 +39,6 @@ private:
   asio::io_context &mIo;
 
   uint8_t mMosiPin = MOSI;
-
   uint8_t mSclkPin = SCLK;
 
   void update(PixelArray array);

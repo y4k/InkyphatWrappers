@@ -27,10 +27,10 @@ const int CS0_PIN = 0;
 // const int WiPi_CS0_PIN = 30;
 
 // Define some constants
-const uint8_t _SPI_COMMAND = LOW;
-const uint8_t _SPI_DATA = HIGH;
+const uint8_t SPI_COMMAND = LOW;
+const uint8_t SPI_DATA = HIGH;
 
-const uint8_t _V2_RESET = 0x12;
+const uint8_t V2_RESET = 0x12;
 
 const uint8_t _BOOSTER_SOFT_START = 0x06;
 const uint8_t _POWER_SETTING = 0x01;

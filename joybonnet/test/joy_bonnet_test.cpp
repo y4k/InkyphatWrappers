@@ -1,13 +1,13 @@
 #include "joyBonnet.hpp"
 #include "joyBonnetConstants.hpp"
 
-using namespace std;
-
-int main(void) {
+int main(void)
+{
   // sets up the wiringPi library
-  if (wiringPiSetupGpio() < 0) {
-    fprintf(stderr, "Unable to setup wiringPi: %s\n", strerror(errno));
-    return 1;
+  if (wiringPiSetupGpio() < 0)
+  {
+    std::cout << "Unable to setup wiringPi:" << strerror(errno) << std::endl;
+    return -1;
   }
 
   JoyBonnet &joy = JoyBonnet::Instance();
@@ -16,48 +16,49 @@ int main(void) {
 
   joy.addHandler(X_BUTTON_PIN, {[&x_count]() {
                    x_count++;
-                   cout << x_count << ":X Button!" << endl;
+                   std::cout << x_count << ":X Button!" << std::endl;
                    return;
                  }});
   joy.addHandler(Y_BUTTON_PIN, {[=]() {
-                   cout << "Y Button!" << endl;
+                   std::cout << "Y Button!" << std::endl;
                    return;
                  }});
   joy.addHandler(A_BUTTON_PIN, {[=]() {
-                   cout << "A Button!" << endl;
+                   std::cout << "A Button!" << std::endl;
                    return;
                  }});
   joy.addHandler(B_BUTTON_PIN, {[=]() {
-                   cout << "B Button!" << endl;
+                   std::cout << "B Button!" << std::endl;
                    return;
                  }});
   joy.addHandler(START_BUTTON_PIN, {[=]() {
-                   cout << "Start Button!" << endl;
+                   std::cout << "Start Button!" << std::endl;
                    return;
                  }});
   joy.addHandler(SELECT_BUTTON_PIN, {[=]() {
-                   cout << "Select Button!" << endl;
+                   std::cout << "Select Button!" << std::endl;
                    return;
                  }});
   joy.addHandler(PLAYER_1_BUTTON_PIN, {[=]() {
-                   cout << "Player 1 Button!" << endl;
+                   std::cout << "Player 1 Button!" << std::endl;
                    return;
                  }});
   joy.addHandler(PLAYER_2_BUTTON_PIN, {[=]() {
-                   cout << "Player 2 Button!" << endl;
+                   std::cout << "Player 2 Button!" << std::endl;
                    return;
                  }});
 
-  cout << "Main thread:" << this_thread::get_id() << endl;
+  std::cout << "Main thread:" << this_thread::get_id() << std::endl;
 
-  while (1) {
+  while (1)
+  {
     // int xCoord, yCoord;
     // tie(xCoord, yCoord) = joy.read_joystick_coords();
 
-    // cout << "Tuple -> [" << xCoord << "," << yCoord << "]" << endl;
+    // std::cout << "Tuple -> [" << xCoord << "," << yCoord << "]" << std::endl;
 
-    cout << print_direction(joy.read_joystick_direction()) << endl;
-    delay(100);  // wait 100 millisecond
+    std::cout << print_direction(joy.read_joystick_direction()) << std::endl;
+    delay(100); // wait 100 millisecond
   }
 
   return 0;

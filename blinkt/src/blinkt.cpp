@@ -34,7 +34,7 @@ Blinkt::Blinkt(asio::io_context &io) : mIo{io}
 
 Blinkt::~Blinkt() {}
 
-asio::io_context &Blinkt::get_io_context() { return mIo; }
+asio::io_context &Blinkt::get_io_context() const { return mIo; }
 
 void Blinkt::update(PixelArray array)
 {

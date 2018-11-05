@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cstdint>
 
 void print_lsb(uint8_t byte)
 {
