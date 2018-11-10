@@ -1,33 +1,21 @@
 // System includes
 #include <iostream>
-#include <stdint.h>
-#include <string>
 #include <linux/types.h>
-#include <unistd.h> // usleep
-#include <stdlib.h>
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string>
+#include <unistd.h> // usleep
+
+#include <png++/png.hpp>
 
 // Local headers
 #include "inkyphat.hpp"
 
-int main(int argc, char *argv[])
+int main(void)
 {
-    if (argc != 2)
-    {
-        std::cout << "No arguments given. Expected 0, 1 or 2." << std::endl;
-        return -1;
-    }
-
-    int colour = std::stoi(argv[1]);
-
-    if (colour < 0 || colour > 2)
-    {
-        std::cout << "Expected 0, 1 or 2" << std::endl;
-        return -1;
-    }
-
-    std::cout << "Running InkyPhat CPP Striped Display Test" << std::endl;
+    std::cout << "Running InkyPhat CPP Display Striped PNG" << std::endl;
 
     // Initialises wiringPi and uses the BCM pin numbering scheme
     if (wiringPiSetupGpio() == -1)
@@ -54,6 +42,24 @@ int main(int argc, char *argv[])
         std::cout << "WiringPi SPI library initialised" << std::endl;
     }
 
+    // Create PNG
+    png::palette inkyPalette(3);
+    inkyPalette[0] = png::color(255, 255, 255);
+    inkyPalette[1] = png::color(255, 0, 0);
+    inkyPalette[2] = png::color(0, 0, 0);
+
+    png::image<png::index_pixel> stripes(212, 104);
+    stripes.set_palette(inkyPalette);
+
+    for (png::uint_32 y = 0; y < stripes.get_height(); ++y)
+    {
+        for (png::uint_32 x = 0; x < stripes.get_width(); ++x)
+        {
+            stripes[y][x] = x % 3;
+            // non-checking equivalent of image.set_pixel(x, y, ...);
+        }
+    }
+
     asio::io_context io;
 
     InkyPhat inky(io);
@@ -61,24 +67,13 @@ int main(int argc, char *argv[])
     int mWidth = WIDTH;
     int mHeight = HEIGHT;
 
-    std::cout << "Setting pixels to given colour:" << colour << std::endl;
     for (int w = 0; w < mWidth; w++)
     {
         for (int h = 0; h < mHeight; h++)
         {
-            if (h % 2 == 0)
-            {
-                inky.set_pixel(h, w, colour);
-            }
-            else
-            {
-                inky.set_pixel(h, w, 0);
-            }
+            inky.set_pixel(h, w, stripes[w][h]);
         }
     }
-
-    std::cout << "Display all current pixel values" << std::endl;
-    std::cout << inky.print_current_buffer() << std::endl;
 
     inky.update();
 

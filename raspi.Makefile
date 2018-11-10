@@ -11,11 +11,11 @@ LDCONFIG := ldconfig
 
 .PHONY:all
 all: $(SUBDIRS)
-	$(MAKE) -C $^ -f $^.$(MAKEEXT)
+	$(MAKE) -C $^ -f $(MAKEEXT)
 
 .PHONY:clean-all
 clean-all: $(SUBDIRS)
-	$(MAKE) -C $^ -f $^.$(MAKEEXT) clean
+	$(MAKE) -C $^ -f $(MAKEEXT) clean
 
 .PHONY: install-all
 install-all: $(SUBDIRS)
