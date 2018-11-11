@@ -1,4 +1,5 @@
 // System includes
+#include <cstddef>
 #include <iostream>
 #include <linux/types.h>
 #include <stdarg.h>
@@ -51,18 +52,41 @@ int main(int argc, char *argv[])
     }
 
     // Load PNG
+    png::image<png::rgb_pixel> loaded(filename);
+
+    std::cout << "Width:" << loaded.get_width() << std::endl;
+    std::cout << "Height:" << loaded.get_height() << std::endl;
+
     png::palette inkyPalette(3);
     inkyPalette[0] = png::color(255, 255, 255);
-    inkyPalette[1] = png::color(255, 0, 0);
-    inkyPalette[2] = png::color(0, 0, 0);
+    inkyPalette[1] = png::color(0, 0, 0);
+    inkyPalette[2] = png::color(255, 0, 0);
 
-    png::image<png::index_pixel> image;
+    png::image<png::index_pixel> image(loaded.get_width(), loaded.get_height());
     image.set_palette(inkyPalette);
 
-    image.read(filename);
+    for (png::uint_32 y = 0; y < loaded.get_height(); ++y)
+    {
+        for (png::uint_32 x = 0; x < loaded.get_width(); ++x)
+        {
+            std::cout << "[" << x << "," << y << "] (" << unsigned(loaded[y][x].red) << "," << unsigned(loaded[y][x].green) << "," << unsigned(loaded[y][x].blue) << ")" << std::endl;
+            if (unsigned(loaded[y][x].blue) <= 50 && unsigned(loaded[y][x].green) <= 50 && unsigned(loaded[y][x].red) <= 50)
+            {
+                image[y][x] = png::index_pixel(1);
+            }
+            else if (unsigned(loaded[y][x].blue) >=220 && unsigned(loaded[y][x].green) >=220 && unsigned(loaded[y][x].red) >=220)
+            {
+                image[y][x] = png::index_pixel(0);
+            }
+            else if (unsigned(loaded[y][x].blue) <= 50 && unsigned(loaded[y][x].green) <= 50 && unsigned(loaded[y][x].red) >=220)
+            {
+                image[y][x] = png::index_pixel(2);
+            }
+        }
+    }
 
-    std::cout << "Height:" << image.get_height() << std::endl;
     std::cout << "Width:" << image.get_width() << std::endl;
+    std::cout << "Height:" << image.get_height() << std::endl;
 
     if (image.get_height() > 104 || image.get_width() > 212)
     {
@@ -74,12 +98,9 @@ int main(int argc, char *argv[])
 
     InkyPhat inky(io);
 
-    int mWidth = inky.get_width();
-    int mHeight = inky.get_height();
-
-    for (int w = 0; w < mWidth; w++)
+    for (int w = 0; w < image.get_width(); w++)
     {
-        for (int h = 0; h < mHeight; h++)
+        for (int h = 0; h < image.get_height(); h++)
         {
             inky.set_pixel(h, w, image[h][w]);
         }

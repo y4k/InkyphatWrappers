@@ -108,6 +108,11 @@ InkyPhat::~InkyPhat()
 
 asio::io_context &InkyPhat::get_io_context() const { return mIo; }
 
+int const InkyPhat::operator()(int const x, int const y, uint8_t value)
+{
+  return set_pixel(y, x, value);
+}
+
 int InkyPhat::update()
 {
   // Lock to avoid to threads attempting to update at once

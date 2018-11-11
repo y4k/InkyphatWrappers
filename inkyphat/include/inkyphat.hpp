@@ -20,6 +20,8 @@ public:
   void operator=(InkyPhat const &) = delete; // Removed method
   ~InkyPhat(void);
 
+  int const operator()(int const x, int const y, uint8_t value);
+
   asio::io_context &get_io_context() const;
 
   int update();
