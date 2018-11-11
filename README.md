@@ -67,7 +67,7 @@ Pixel myPixel = Pixel(255,255,255);             // Define a pixel
 
 Blinkt& blinkt = Blinkt::Instance();            // Gets a reference to the Blinkt instance
 
-setPixel(blinkt, myPixel.getPixel(), 6);        // Pre-defined Pixels can be used to set values
+setPixel(blinkt, myPixel.get_pixel(), 6);        // Pre-defined Pixels can be used to set values
 setPixel(blinkt, myPixel, 7);                   // Pre-defined Pixels can be used to set values
 ```
 

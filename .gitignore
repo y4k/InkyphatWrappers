@@ -1,0 +1,6 @@
+# Build and lib dirs
+**/build/**
+**/lib/**
+
+# Ignore exe
+**/bin/**
