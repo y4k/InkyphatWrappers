@@ -1,7 +1,7 @@
 Q ?=@ # Helper to make commands silent
 
 # Compiler
-CC := g++ -std=c++11 
+CC := clang -std=c++11 
 DEBUG := -O2 -DDEBUG
 
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
@@ -20,7 +20,7 @@ OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 
 CFLAGS := -Wall -g -DASIO_STANDALONE
 INC := -I include
-LIB := -lpthread -lwiringPi
+LIB := -lpthread -lwiringPi -lstdc++
 SHARED_COMPILE := -fPIC $(CFLAGS)
 SHARED_LIB := -shared $(LIB)
 

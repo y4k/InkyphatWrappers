@@ -1,7 +1,7 @@
 Q ?=@ # Helper to make commands silent
 
 # Compiler
-CC := g++ -std=c++11 
+CC := clang -std=c++11 
 DEBUG := -O2 -DDEBUG
 
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
@@ -17,11 +17,12 @@ TARGET := lib/lib$(OUTNAME).so
 
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
+SRCHEADERS := $(shell find $(SRCDIR) -type f -name *.hpp)
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 
 CFLAGS := -Wall -g -DASIO_STANDALONE
 INC := -I include
-LIB := -lpthread -lwiringPi -lpng
+LIB := -lpthread -lwiringPi -lpng -lstdc++
 SHARED_COMPILE := -fPIC $(CFLAGS)
 SHARED_LIB := -shared $(LIB)
 
@@ -36,7 +37,7 @@ $(TARGET) : $(OBJECTS)
 	$Q echo $(OBJECTS)
 	$Q echo "$(CC) $^ -o $(TARGET) $(SHARED_LIB)"; $(CC) $^ -o $(TARGET) $(SHARED_LIB)
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT) $(SRCHEADERS)
 	$Q echo "Compiling $@..."
 	$Q mkdir -p $(BUILDDIR)
 	$Q @echo " $(CC) $(SHARED_COMPILE) $(INC) -c -o $@ $<"; $(CC) $(SHARED_COMPILE) $(INC) -c -o $@ $<

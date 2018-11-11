@@ -1,27 +1,28 @@
 #include <iostream>
-#include <stdint.h>
-#include <string>
 #include <linux/types.h>
-#include <signal.h> // some kind of magic I guess
-#include <iostream>
-#include <unistd.h> // usleep
+#include <sstream>
+#include <stdint.h>
 #include <stdlib.h>
+#include <string>
+#include <unistd.h> // usleep
 
 #include "inkyphat.hpp"
-
-std::string print_buff(std::vector<uint8_t> buffer);
+#include "inkyphatConstants.hpp"
 
 // VERSION 2 only
 InkyPhat::InkyPhat(asio::io_context &io)
-    : mIo{io}, mInkyVersion{2}, mBuffer{HEIGHT, std::vector<uint8_t>(WIDTH)}
+    : mIo{io}, mCommandPin{COMMAND_PIN}, mResetPin{RESET_PIN},
+      mBusyPin{BUSY_PIN}, mCsPin{CS0_PIN}, mInkyVersion{2},
+      mWidth{WIDTH},
+      mHeight{HEIGHT},
+      mBuffer(mWidth, std::vector<uint8_t>(mHeight))
 {
   /*
      Initialise by filling the pixel buffer.
      Indexed using mBuffer[mHeight][mWidth] e.g mBuffer[y][x] or mBuffer[row][column]
 
-    The number of columns (212) represents the long side of the InkyPhat which is
-    conventionally the horizontal with the short side as the width but when viewed,
-    is usually taken as the height.
+    The number of columns (212) represents the long side of the InkyPhat which we
+    define as the width with the short side (104) as the height.
     */
   // ========================================
 
@@ -81,6 +82,7 @@ InkyPhat::InkyPhat(asio::io_context &io)
 #ifdef DEBUG
     std::cout << "InkyHat version:" << 1 << std::endl;
 #endif
+    mInkyVersion = 1;
     mPalette.push_back(BLACK);
     mPalette.push_back(WHITE);
     mPalette.push_back(RED);
@@ -90,6 +92,7 @@ InkyPhat::InkyPhat(asio::io_context &io)
 #ifdef DEBUG
     std::cout << "InkyHat version:" << 2 << std::endl;
 #endif
+    mInkyVersion = 2;
     mPalette.push_back(WHITE);
     mPalette.push_back(BLACK);
     mPalette.push_back(RED);
@@ -115,7 +118,7 @@ int InkyPhat::update()
   std::vector<uint8_t> red_buffer;
   std::vector<uint8_t> black_buffer;
 
-  // For each row, create a single value
+  // Iterate over the long side (212 columns)
   for (std::vector<std::vector<uint8_t>>::iterator col_it = mBuffer.begin(); col_it != mBuffer.end(); col_it++)
   {
     int count = 0;
@@ -124,7 +127,8 @@ int InkyPhat::update()
     uint8_t redValue = 0;
     uint8_t blackValue = 0;
 
-    for (std::vector<uint8_t>::iterator row_it = (*col_it).begin(); row_it != (*col_it).end(); row_it++)
+    // Iterate over each of pixel in the set (104 pixels in each set)
+    for (std::vector<uint8_t>::reverse_iterator row_it = (*col_it).rbegin(); row_it != (*col_it).rend(); row_it++)
     {
       uint8_t value = *row_it;
       // If the value equals RED, it's considered TRUE otherwise FALSE
@@ -177,7 +181,7 @@ int InkyPhat::update()
 }
 
 // Indexed using buffer[mHeight][mWidth]
-// e.g buffer[y][x] or buffer[row][column]
+// e.g buffer[x][y] or buffer[col][row]
 int InkyPhat::set_pixel(int row, int column, uint8_t value)
 {
   // Lock to avoid to threads attempting to set_pixels
@@ -187,7 +191,7 @@ int InkyPhat::set_pixel(int row, int column, uint8_t value)
   {
     return -1;
   }
-  mBuffer[row][column] = value;
+  mBuffer[column][row] = value;
   return 0;
 }
 
@@ -196,16 +200,41 @@ std::string InkyPhat::print_current_buffer()
   // Lock to avoid to threads attempting to update at once
   std::lock_guard<std::mutex> lock(mLock);
 
-  std::string output;
-  output += "Current buffer values";
-  output += "\n";
-  for (std::vector<std::vector<uint8_t>>::iterator row_it = mBuffer.begin(); row_it != mBuffer.end(); row_it++)
+  std::stringstream ss;
+  ss << "Current buffer values" << std::endl;
+
+  for (int row = 0; row < mHeight; row++)
   {
-    output += print_buff(*row_it);
-    output += "\n";
+    ss << "[Row:" << row << "]";
+    for (int col = 0; col < mWidth; col++)
+    {
+      auto value = mBuffer[col][row];
+      if (value == RED)
+      {
+        ss << "x";
+      }
+      else if (value == BLACK)
+      {
+        ss << "o";
+      }
+      else if (value == WHITE)
+      {
+        ss << "-";
+      }
+    }
+    ss << "]" << std::endl;
   }
-  output += "\n";
-  return output;
+  return ss.str();
+}
+
+int const InkyPhat::get_width() const
+{
+  return mWidth;
+}
+
+int const InkyPhat::get_height() const
+{
+  return mHeight;
 }
 
 // Display initialisation
@@ -326,30 +355,6 @@ int InkyPhat::display_update(std::vector<uint8_t> buf_black, std::vector<uint8_t
 int InkyPhat::display_finalise()
 {
   return 0;
-}
-
-std::string print_buff(std::vector<uint8_t> buffer)
-{
-  std::string output;
-  output += "[";
-  for (std::vector<uint8_t>::iterator col_it = buffer.begin(); col_it != buffer.end(); col_it++)
-  {
-    if (*col_it == RED)
-    {
-      output += "x";
-    }
-    else if (*col_it == BLACK)
-    {
-      output += "o";
-    }
-    else if (*col_it == WHITE)
-    {
-      output += "-";
-    }
-  }
-  output += "]";
-
-  return output;
 }
 
 int InkyPhat::busy_wait()

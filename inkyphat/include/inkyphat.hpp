@@ -10,7 +10,7 @@
 
 #include <asio.hpp>
 
-#include "inkyphatConstants.hpp"
+const int CS0_PIN = 0;
 
 class InkyPhat
 {
@@ -26,19 +26,22 @@ public:
   int set_pixel(int row, int column, uint8_t value);
   std::string print_current_buffer();
 
+  int const get_width() const;
+  int const get_height() const;
+
 private:
   asio::io_context &mIo;
 
   std::mutex mLock; // Mutex for thread safety
 
-  uint8_t mCommandPin = COMMAND_PIN;
-  uint8_t mResetPin = RESET_PIN;
-  uint8_t mBusyPin = BUSY_PIN;
-  uint8_t mCsPin = CS0_PIN;
+  uint8_t mCommandPin;
+  uint8_t mResetPin;
+  uint8_t mBusyPin;
+  uint8_t mCsPin;
 
-  int mInkyVersion = 2;
-  int mWidth = WIDTH;
-  int mHeight = HEIGHT;
+  int mInkyVersion;
+  int mWidth;
+  int mHeight;
 
   std::vector<std::vector<uint8_t>> mBuffer;
 

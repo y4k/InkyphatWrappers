@@ -1,29 +1,26 @@
 // System includes
 #include <iostream>
-#include <linux/types.h>
-#include <stdarg.h>
-#include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <string>
+#include <linux/types.h>
 #include <unistd.h> // usleep
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
 
-#include <png++/png.hpp>
-
-// Local headers
 #include "inkyphat.hpp"
 
 int main(int argc, char *argv[])
 {
-    std::cout << "Running InkyPhat CPP Load PNG" << std::endl;
-
     if (argc != 2)
     {
-        std::cout << "Single filename argument required" << std::endl;
+        std::cout << "No arguments given. Expected 0, 1 or 2." << std::endl;
         return -1;
     }
 
-    std::string filename(argv[1]);
+    int column = std::stoi(argv[1]);
+
+    std::cout << "Running InkyPhat CPP Single Column Display Test" << std::endl;
 
     // Initialises wiringPi and uses the BCM pin numbering scheme
     if (wiringPiSetupGpio() == -1)
@@ -50,26 +47,6 @@ int main(int argc, char *argv[])
         std::cout << "WiringPi SPI library initialised" << std::endl;
     }
 
-    // Load PNG
-    png::palette inkyPalette(3);
-    inkyPalette[0] = png::color(255, 255, 255);
-    inkyPalette[1] = png::color(255, 0, 0);
-    inkyPalette[2] = png::color(0, 0, 0);
-
-    png::image<png::index_pixel> image;
-    image.set_palette(inkyPalette);
-
-    image.read(filename);
-
-    std::cout << "Height:" << image.get_height() << std::endl;
-    std::cout << "Width:" << image.get_width() << std::endl;
-
-    if (image.get_height() > 104 || image.get_width() > 212)
-    {
-        std::cout << "The dimensions of the image are too large" << std::endl;
-        return -2;
-    }
-
     asio::io_context io;
 
     InkyPhat inky(io);
@@ -77,13 +54,33 @@ int main(int argc, char *argv[])
     int mWidth = inky.get_width();
     int mHeight = inky.get_height();
 
+    std::cout << "Width:" << mWidth << std::endl;
+    std::cout << "Height:" << mHeight << std::endl;
+
+    std::cout << "Setting pixels of a given column:" << column << std::endl;
     for (int w = 0; w < mWidth; w++)
     {
         for (int h = 0; h < mHeight; h++)
         {
-            inky.set_pixel(h, w, image[h][w]);
+            if (w == column)
+            {
+                if (inky.set_pixel(h, w, 0) != 0)
+                {
+                    std::cout << "Failed to set pixel (" << 0 << "," << 0 << ")" << std::endl;
+                }
+            }
+            else
+            {
+                if (inky.set_pixel(h, w, 2) != 0)
+                {
+                    std::cout << "Failed to set pixel (" << w << "," << h << ")" << std::endl;
+                }
+            }
         }
     }
+
+    std::cout << "Display all current pixel values" << std::endl;
+    std::cout << inky.print_current_buffer() << std::endl;
 
     inky.update();
 

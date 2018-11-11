@@ -58,8 +58,8 @@ int main(int argc, char *argv[])
 
     InkyPhat inky(io);
 
-    int mWidth = WIDTH;
-    int mHeight = HEIGHT;
+    int mWidth = inky.get_width();
+    int mHeight = inky.get_height();
 
     std::cout << "Setting pixels to given colour:" << colour << std::endl;
     for (int w = 0; w < mWidth; w++)
