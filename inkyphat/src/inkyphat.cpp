@@ -14,8 +14,8 @@ InkyPhat::InkyPhat(asio::io_context &io)
     : mIo{io}, mCommandPin{COMMAND_PIN}, mResetPin{RESET_PIN},
       mBusyPin{BUSY_PIN}, mCsPin{CS0_PIN}, mInkyVersion{2},
       mWidth{WIDTH},
-      mHeight{HEIGHT},
-      mBuffer(mWidth, std::vector<uint8_t>(mHeight))
+      mHeight{HEIGHT}
+// mBuffer(mWidth, std::vector<uint8_t>(mHeight))
 {
   /*
      Initialise by filling the pixel buffer.
@@ -108,23 +108,21 @@ InkyPhat::~InkyPhat()
 
 asio::io_context &InkyPhat::get_io_context() const { return mIo; }
 
-int const InkyPhat::operator()(int const x, int const y, uint8_t value)
+void InkyPhat::update(InkyFrame const &frame)
 {
-  return set_pixel(y, x, value);
+  asio::post(mIo, [&]() { internal_update(frame); });
 }
 
-int InkyPhat::update()
+int InkyPhat::internal_update(InkyFrame const &frame)
 {
   // Lock to avoid to threads attempting to update at once
-  std::lock_guard<std::mutex> lock(mLock);
-
   display_init();
 
   std::vector<uint8_t> red_buffer;
   std::vector<uint8_t> black_buffer;
 
   // Iterate over the long side (212 columns)
-  for (std::vector<std::vector<uint8_t>>::iterator col_it = mBuffer.begin(); col_it != mBuffer.end(); col_it++)
+  for (int col = 0; col < frame.get_width(); ++col)
   {
     int count = 0;
 
@@ -133,9 +131,9 @@ int InkyPhat::update()
     uint8_t blackValue = 0;
 
     // Iterate over each of pixel in the set (104 pixels in each set)
-    for (std::vector<uint8_t>::reverse_iterator row_it = (*col_it).rbegin(); row_it != (*col_it).rend(); row_it++)
+    for (int row = 0; row < frame.get_height(); ++row)
     {
-      uint8_t value = *row_it;
+      uint8_t value = frame(col, row);
       // If the value equals RED, it's considered TRUE otherwise FALSE
       if (value == RED)
       {
@@ -183,53 +181,6 @@ int InkyPhat::update()
 
   display_finalise();
   return 0;
-}
-
-// Indexed using buffer[mHeight][mWidth]
-// e.g buffer[x][y] or buffer[col][row]
-int InkyPhat::set_pixel(int row, int column, uint8_t value)
-{
-  // Lock to avoid to threads attempting to set_pixels
-  std::lock_guard<std::mutex> lock(mLock);
-
-  if (row < 0 || row >= mHeight || column < 0 || column >= mWidth || value < 0 || value > 2)
-  {
-    return -1;
-  }
-  mBuffer[column][row] = value;
-  return 0;
-}
-
-std::string InkyPhat::print_current_buffer()
-{
-  // Lock to avoid to threads attempting to update at once
-  std::lock_guard<std::mutex> lock(mLock);
-
-  std::stringstream ss;
-  ss << "Current buffer values" << std::endl;
-
-  for (int row = 0; row < mHeight; row++)
-  {
-    ss << "[Row:" << row << "]";
-    for (int col = 0; col < mWidth; col++)
-    {
-      auto value = mBuffer[col][row];
-      if (value == RED)
-      {
-        ss << "x";
-      }
-      else if (value == BLACK)
-      {
-        ss << "o";
-      }
-      else if (value == WHITE)
-      {
-        ss << "-";
-      }
-    }
-    ss << "]" << std::endl;
-  }
-  return ss.str();
 }
 
 int const InkyPhat::get_width() const

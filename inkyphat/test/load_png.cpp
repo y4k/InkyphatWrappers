@@ -74,11 +74,11 @@ int main(int argc, char *argv[])
             {
                 image[y][x] = png::index_pixel(1);
             }
-            else if (unsigned(loaded[y][x].blue) >=220 && unsigned(loaded[y][x].green) >=220 && unsigned(loaded[y][x].red) >=220)
+            else if (unsigned(loaded[y][x].blue) >= 220 && unsigned(loaded[y][x].green) >= 220 && unsigned(loaded[y][x].red) >= 220)
             {
                 image[y][x] = png::index_pixel(0);
             }
-            else if (unsigned(loaded[y][x].blue) <= 50 && unsigned(loaded[y][x].green) <= 50 && unsigned(loaded[y][x].red) >=220)
+            else if (unsigned(loaded[y][x].blue) <= 50 && unsigned(loaded[y][x].green) <= 50 && unsigned(loaded[y][x].red) >= 220)
             {
                 image[y][x] = png::index_pixel(2);
             }

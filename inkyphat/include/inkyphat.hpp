@@ -1,14 +1,16 @@
 #ifndef INKYPHAT_H
 #define INKYPHAT_H
 
-#include <stdint.h>
-#include <vector>
-#include <string>
 #include <mutex>
+#include <stdint.h>
+#include <string>
+#include <vector>
+
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 
 #include <asio.hpp>
+#include "inkyframe.hpp"
 
 const int CS0_PIN = 0;
 
@@ -20,21 +22,15 @@ public:
   void operator=(InkyPhat const &) = delete; // Removed method
   ~InkyPhat(void);
 
-  int const operator()(int const x, int const y, uint8_t value);
-
   asio::io_context &get_io_context() const;
 
-  int update();
-  int set_pixel(int row, int column, uint8_t value);
-  std::string print_current_buffer();
+  void update(InkyFrame const &frame);
 
   int const get_width() const;
   int const get_height() const;
 
 private:
   asio::io_context &mIo;
-
-  std::mutex mLock; // Mutex for thread safety
 
   uint8_t mCommandPin;
   uint8_t mResetPin;
@@ -45,11 +41,10 @@ private:
   int mWidth;
   int mHeight;
 
-  std::vector<std::vector<uint8_t>> mBuffer;
-
   uint8_t mBorder = 0b00000000;
   std::vector<uint8_t> mPalette;
 
+  int internal_update(InkyFrame const &frame);
   int display_init();
   int display_update(std::vector<uint8_t> buf_black, std::vector<uint8_t> buf_red);
   int display_finalise();

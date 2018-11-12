@@ -2,24 +2,30 @@
 #define INKYFRAME_H
 
 #include <stdint.h>
+#include <stdexcept>
 #include <string>
 #include <vector>
-
-#include "inkyphatConstants.hpp"
 
 class InkyFrame
 {
 public:
-  InkyFrame();
+  InkyFrame(int width, int height);
   InkyFrame(InkyFrame const &);
   void operator=(InkyFrame const &) = delete; // Removed method
-  ~InkyFrame();
 
-  int set_pixel(int row, int column, uint8_t value);
-  std::string print_current_buffer();
+  int const get_width() const;
+  int const get_height() const;
+
+  uint8_t const get_pixel(int const row, int const column) const;
+  int const set_pixel(int const row, int const column, uint8_t const value);
+
+  uint8_t const operator()(int const x, int const y) const;
+  int const operator()(int const x, int const y, uint8_t value);
 
 private:
-  std::vector<std::vector<uint8_t>> mBuffer;
+  int mWidth;
+  int mHeight;
+  std::vector<uint8_t> mBuffer;
 };
 
 #endif

@@ -52,32 +52,33 @@ int main(int argc, char *argv[])
 
     InkyPhat inky(io);
 
-    int mWidth = inky.get_width();
-    int mHeight = inky.get_height();
+    int width = inky.get_width();
+    int height = inky.get_height();
 
-    std::cout << "Width:" << mWidth << std::endl;
-    std::cout << "Height:" << mHeight << std::endl;
+    std::cout << "Width:" << width << std::endl;
+    std::cout << "Height:" << height << std::endl;
 
-    for (int w = 0; w < mWidth; w++)
+    InkyFrame frame(width, height);
+
+    for (int w = 0; w < width; w++)
     {
-        for (int h = 0; h < mHeight; h++)
+        for (int h = 0; h < height; h++)
         {
-            if (inky.set_pixel(h, w, 2) != 0)
+            if (frame(w, h, 2) != 0)
             {
                 std::cout << "Failed to set pixel (" << w << "," << h << ")" << std::endl;
             }
         }
     }
 
-    if (inky.set_pixel(y, x, 0) != 0)
+    if (frame.set_pixel(y, x, 0) != 0)
     {
-        std::cout << "Failed to set pixel (" << 0 << "," << 0 << ")" << std::endl;
+        std::cout << "Failed to set pixel (" << x << "," << y << ")" << std::endl;
     }
 
-    std::cout << "Display all current pixel values" << std::endl;
-    std::cout << inky.print_current_buffer() << std::endl;
+    inky.update(frame);
 
-    inky.update();
+    io.run();
 
     return 0;
 }
