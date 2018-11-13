@@ -54,6 +54,8 @@ int main(int argc, char *argv[])
     int mWidth = inky.get_width();
     int mHeight = inky.get_height();
 
+    InkyFrame frame(mWidth, mHeight);
+
     std::cout << "Width:" << mWidth << std::endl;
     std::cout << "Height:" << mHeight << std::endl;
 
@@ -64,14 +66,14 @@ int main(int argc, char *argv[])
         {
             if (w == column)
             {
-                if (inky.set_pixel(h, w, 0) != 0)
+                if (frame.set_pixel(h, w, 0) != 0)
                 {
                     std::cout << "Failed to set pixel (" << 0 << "," << 0 << ")" << std::endl;
                 }
             }
             else
             {
-                if (inky.set_pixel(h, w, 2) != 0)
+                if (frame.set_pixel(h, w, 2) != 0)
                 {
                     std::cout << "Failed to set pixel (" << w << "," << h << ")" << std::endl;
                 }
@@ -79,10 +81,8 @@ int main(int argc, char *argv[])
         }
     }
 
-    std::cout << "Display all current pixel values" << std::endl;
-    std::cout << inky.print_current_buffer() << std::endl;
-
-    inky.update();
+    inky.update(frame);
+    io.run();
 
     return 0;
 }

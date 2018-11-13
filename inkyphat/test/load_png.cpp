@@ -13,6 +13,7 @@
 
 // Local headers
 #include "inkyphat.hpp"
+#include "inkyframe.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -69,7 +70,7 @@ int main(int argc, char *argv[])
     {
         for (png::uint_32 x = 0; x < loaded.get_width(); ++x)
         {
-            std::cout << "[" << x << "," << y << "] (" << unsigned(loaded[y][x].red) << "," << unsigned(loaded[y][x].green) << "," << unsigned(loaded[y][x].blue) << ")" << std::endl;
+            // std::cout << "[" << x << "," << y << "] (" << unsigned(loaded[y][x].red) << "," << unsigned(loaded[y][x].green) << "," << unsigned(loaded[y][x].blue) << ")" << std::endl;
             if (unsigned(loaded[y][x].blue) <= 50 && unsigned(loaded[y][x].green) <= 50 && unsigned(loaded[y][x].red) <= 50)
             {
                 image[y][x] = png::index_pixel(1);
@@ -97,16 +98,19 @@ int main(int argc, char *argv[])
     asio::io_context io;
 
     InkyPhat inky(io);
+    InkyFrame frame(inky.get_width(), inky.get_height());
 
     for (int w = 0; w < image.get_width(); w++)
     {
         for (int h = 0; h < image.get_height(); h++)
         {
-            inky.set_pixel(h, w, image[h][w]);
+            frame.set_pixel(h, w, image[h][w]);
         }
     }
 
-    inky.update();
+    inky.update(frame);
+
+    io.run();
 
     return 0;
 }

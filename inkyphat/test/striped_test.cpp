@@ -10,6 +10,7 @@
 
 // Local headers
 #include "inkyphat.hpp"
+#include "inkyframe.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -58,29 +59,29 @@ int main(int argc, char *argv[])
 
     InkyPhat inky(io);
 
-    int mWidth = inky.get_width();
-    int mHeight = inky.get_height();
+    int width = inky.get_width();
+    int height = inky.get_height();
+
+    InkyFrame frame(width, height);
 
     std::cout << "Setting pixels to given colour:" << colour << std::endl;
-    for (int w = 0; w < mWidth; w++)
+    for (int w = 0; w < width; w++)
     {
-        for (int h = 0; h < mHeight; h++)
+        for (int h = 0; h < height; h++)
         {
             if (h % 2 == 0)
             {
-                inky.set_pixel(h, w, colour);
+                frame.set_pixel(h, w, colour);
             }
             else
             {
-                inky.set_pixel(h, w, 0);
+                frame.set_pixel(h, w, 0);
             }
         }
     }
 
-    std::cout << "Display all current pixel values" << std::endl;
-    std::cout << inky.print_current_buffer() << std::endl;
-
-    inky.update();
+    inky.update(frame);
+    io.run();
 
     return 0;
 }

@@ -32,7 +32,7 @@ uint8_t const InkyFrame::get_pixel(int const row, int const column) const
     throw std::out_of_range("height");
   }
 
-  int index = row + mHeight * column;
+  int index = (mHeight - row - 1) + mHeight * column;
   return mBuffer[index];
 }
 
